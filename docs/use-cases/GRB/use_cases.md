@@ -67,7 +67,56 @@ Administrador
 
 # CU-02 Actualizar Información de Cuenta
 
-(Contenido)
+## Descripción
+
+Permite al Administrador actualizar la información de una cuenta de usuario existente en el sistema del condominio.
+
+## Actor Principal
+
+Administrador
+
+## Precondiciones
+
+- El Administrador ha iniciado sesión.
+- Posee permisos para gestionar usuarios.
+- La cuenta del Usuario existe en el sistema.
+
+## Postcondiciones
+
+- La información de la cuenta queda actualizada.
+
+## Escenario Básico
+
+1. El caso de uso comienza cuando el Administrador selecciona una cuenta de Usuario.
+2. El Sistema muestra la información actual de la cuenta.
+3. El Administrador modifica los datos necesarios de la cuenta.
+4. El Sistema valida la información ingresada.
+5. El Administrador confirma la actualización de la cuenta.
+6. El Sistema registra los cambios realizados.
+7. El caso de uso termina cuando el Sistema muestra el mensaje "Información de cuenta actualizada exitosamente".
+
+## Escenarios Alternos
+
+### A1. Datos inválidos
+
+1. El caso de uso comienza cuando el Administrador modifica la información de una cuenta.
+2. El Sistema detecta que uno o más datos ingresados son inválidos.
+3. El Sistema muestra el mensaje "Los datos ingresados no son válidos".
+4. El caso de uso finaliza sin actualizar la cuenta.
+
+### A2. Campos obligatorios vacíos
+
+1. El caso de uso comienza cuando el Administrador modifica la información de una cuenta.
+2. El Sistema detecta que uno o más campos obligatorios están vacíos.
+3. El Sistema muestra el mensaje "Existen campos obligatorios vacíos".
+4. El caso de uso finaliza sin actualizar la cuenta.
+
+### A3. Correo electrónico ya registrado
+1. El caso de uso comienza cuando el Administrador modifica la información de la cuenta.
+2. El Administrador ingresa un correo electrónico que ya se encuentra asociado a otra cuenta en el sistema.
+3. El Sistema detecta la duplicidad del correo electrónico.
+4. El Sistema muestra el mensaje "El correo electrónico ingresado ya está registrado por otro usuario".
+5. El caso de uso finaliza sin actualizar la cuenta.
 
 ---
 
