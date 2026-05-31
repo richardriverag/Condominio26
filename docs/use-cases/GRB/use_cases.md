@@ -85,7 +85,59 @@ Administrador
 
 # CU-06 Iniciar Sesión
 
-(Contenido)
+## Descripción
+
+Permite al Usuario o Administrador autenticarse en el sistema del condominio.
+
+## Actor Principal
+
+Usuario, Administrador
+
+## Precondiciones
+
+- El Actor tiene una cuenta registrada.
+- La cuenta no se encuentra desactivada.
+
+## Postcondiciones
+
+- El Actor inicia sesión en el sistema.
+
+## Escenario Básico
+
+1. El caso de uso comienza cuando el Actor inicia sesión.
+2. El Actor proporciona el correo electrónico.
+3. El Sistema valida el correo electrónico entonces el Actor proporciona la contraseña.
+4. El Sistema valida la contraseña y el estado de la cuenta.
+5. El caso de uso termina cuando el Sistema muestra el mensaje "Sesión iniciada exitosamente".
+
+## Escenarios Alternos
+
+### A1. Credenciales incorrectas
+
+1. El caso de uso comienza cuando el Actor inicia sesión.
+2. El Actor proporciona el correo electrónico.
+3. El Sistema valida el correo electrónico entonces el Actor proporciona la contraseña.
+4. El Sistema detecta que el correo electrónico o la contraseña son incorrectos.
+5. El Sistema muestra el mensaje "Credenciales incorrectas".
+6. El caso de uso finaliza sin iniciar sesión.
+
+### A2. Cuenta desactivada
+
+1. El caso de uso comienza cuando el Actor inicia sesión.
+2. El Actor proporciona el correo electrónico.
+3. El Sistema valida el correo electrónico entonces el Actor proporciona la contraseña.
+4. El Sistema detecta que la cuenta se encuentra desactivada.
+5. El Sistema muestra el mensaje "La cuenta se encuentra desactivada".
+6. El caso de uso finaliza sin iniciar sesión.
+
+### A3. Campos incompletos
+
+1. El caso de uso comienza cuando el Actor inicia sesión.
+2. El Actor proporciona el correo electrónico.
+3. El Sistema valida el correo electrónico entonces el Actor proporciona la contraseña.
+4. El sistema detecta que uno o más campos obligatorios están vacíos.
+5. El Sistema muestra el mensaje "Todos los campos son obligatorios".
+6. El caso de uso finaliza sin iniciar sesión.
 
 ---
 
