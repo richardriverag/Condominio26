@@ -35,27 +35,33 @@ Administrador
 
 ## Escenario Básico
 
-1. El caso de uso comienza cuando el Administrador registra un usuario.
-2. El Administrador proporciona el nombre y apellido del usuario.
-3. El Sistema valida el nombre y apeliido del usuario entonces el Administrador proporciona el correo.
-4. El Sistema valida el correo del usario entonces el Administrador proporciona la contraseña.
-5. El Sistema valida la contraseña del usuario entonces el Administrador proporciona el rol del usuario.
-6. El Sistema valida el rol del usario entonces el Administrador proporciona los permisos del rol del usuario.
-7. El caso de uso termina cuando el Sistema registra la cuenta, envía las credenciales al usuario y muestra el mensaje de confirmación.
+1. El caso de uso comienza cuando el Administrador registra un Usuario.
+2. El Administrador proporciona los datos del Usuario nombre y apellido.
+3. El Sistema valida el nombre y apellido del Usuario entonces el Administrador proporciona el correo electrónico.
+4. El Sistema valida el correo electrónico del Usuario entonces el Administrador proporciona la contraseña.
+5. El Sistema registra la cuenta y envía las credenciales al correo del Usuario.
+6. El caso de uso termina cuando el Sistema muestra el mensaje "Usuario registrado exitosamente".
 
 ## Escenario Alternos
 
 ### A1. Correo ya registrado
 
-1. El Sistema detecta que el correo existe.
-2. El Sistema muestra un mensaje de error.
-3. El caso de uso finaliza.
+1. El caso de uso comienza cuando el Administrador registra un Usuario.
+2. El Administrador proporciona los datos del Usuario nombre y apellido.
+3. El Sistema valida el nombre y apellido del Usuario entonces el Administrador proporciona el correo electrónico.
+4. El Sistema detecta que el correo electrónico del Usuario ya está registrado en el sistema.
+5. El Sistema muestra el mensaje "El correo electrónico ya está registrado".
+6. El caso de uso finaliza sin registrar al usuario.
 
 ### A2. Campos incompletos
 
-1. El Sistema detecta campos obligatorios vacíos.
-2. El Sistema solicita completar la información.
-3. El flujo regresa al ingreso de datos.
+1. El caso de uso comienza cuando el Administrador registra un Usuario.
+2. El Administrador proporciona los datos del Usuario nombre y apellido.
+3. El Sistema valida el nombre y apellido del Usuario entonces el Administrador proporciona el correo electrónico.
+4. El Sistema valida el correo electrónico del Usuario entonces el Administrador proporciona la contraseña.
+5. El Sistema detecta que uno o más campos obligatorios del Usuario están vacíos.
+6. El Sistema muestra el mensaje "Todos los campos son obligatorios".
+7. El caso de uso finaliza sin registrar al Usuario.
 
 ---
 
@@ -74,20 +80,25 @@ Administrador
 # CU-04 Asignar Rol a Usuario
 
 ## Descripción
+
 Permite al Administrador asignar o modificar el rol de seguridad de una cuenta de usuario existente para controlar sus niveles de acceso dentro del sistema.
 
 ## Actor Principal
+
 Administrador
 
 ## Precondiciones
+
 - El Administrador ha iniciado sesión correctamente.
 - El usuario al que se le asignará el rol debe estar previamente registrado en el sistema.
 
 ## Postcondiciones
+
 - El rol del usuario es actualizado en la base de datos.
 - Los permisos asociados al nuevo rol se aplican de inmediato a la sesión del usuario.
 
 ## Escenario Básico
+
 1. El Administrador solicita gestionar los roles de un usuario.
 2. El Sistema solicita el identificador (correo o nombre) del usuario.
 3. El Administrador ingresa los datos de búsqueda.
@@ -100,11 +111,13 @@ Administrador
 ## Escenario Alternos
 
 ### A1. Usuario no encontrado
+
 1. En el paso 4, el Sistema no encuentra coincidencias.
 2. El Sistema muestra un mensaje de error: "Usuario inexistente".
 3. El flujo regresa al punto de búsqueda o finaliza.
 
 ### A2. El usuario ya posee ese rol
+
 1. En el paso 7, el Administrador selecciona un rol que el usuario ya tiene asignado.
 2. El Sistema informa que no hubo cambios necesarios.
 3. El caso de uso finaliza.
