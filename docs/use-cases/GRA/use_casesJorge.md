@@ -26,7 +26,7 @@ la solicitud de manera correcta y cumple con todos los parámetros del sistema.
 4. El sistema verifica el estado de la obligación en la base de datos.
 5. El sistema al detectar que el estado es "PAGADO", oculta o inhabilita por completo el botón "Solicitar Pago en Cuotas" para esa transacción específica, impidiendo el inicio del flujo.
 
-**Escenario alternativo 2**
+**Escenario alternativo 2**fff
 1. El residente se encuentra autenticado en el sistema.
 2. El residente posee al menos una obligación de pago o cargo extraordinario en estado "PENDIENTE" o "EN MORA".
 3. El residente ingresa al módulo de "Mis Obligaciones" y selecciona una deuda específica elegible para financiamiento (por ejemplo, un cargo extraordinario).
