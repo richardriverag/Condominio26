@@ -67,13 +67,106 @@ Administrador
 
 # CU-02 Actualizar Información de Cuenta
 
-(Contenido)
+## Descripción
+
+Permite al Administrador actualizar la información de una cuenta de usuario existente en el sistema del condominio.
+
+## Actor Principal
+
+Administrador
+
+## Precondiciones
+
+- El Administrador ha iniciado sesión.
+- Posee permisos para gestionar usuarios.
+- La cuenta del Usuario existe en el sistema.
+
+## Postcondiciones
+
+- La información de la cuenta queda actualizada.
+
+## Escenario Básico
+
+1. El caso de uso comienza cuando el Administrador selecciona una cuenta de Usuario.
+2. El Sistema muestra la información actual de la cuenta.
+3. El Administrador modifica los datos necesarios de la cuenta.
+4. El Sistema valida la información ingresada.
+5. El Administrador confirma la actualización de la cuenta.
+6. El Sistema registra los cambios realizados.
+7. El caso de uso termina cuando el Sistema muestra el mensaje "Información de cuenta actualizada exitosamente".
+
+## Escenarios Alternos
+
+### A1. Datos inválidos
+
+1. El caso de uso comienza cuando el Administrador modifica la información de una cuenta.
+2. El Sistema detecta que uno o más datos ingresados son inválidos.
+3. El Sistema muestra el mensaje "Los datos ingresados no son válidos".
+4. El caso de uso finaliza sin actualizar la cuenta.
+
+### A2. Campos obligatorios vacíos
+
+1. El caso de uso comienza cuando el Administrador modifica la información de una cuenta.
+2. El Sistema detecta que uno o más campos obligatorios están vacíos.
+3. El Sistema muestra el mensaje "Existen campos obligatorios vacíos".
+4. El caso de uso finaliza sin actualizar la cuenta.
+
+### A3. Correo electrónico ya registrado
+1. El caso de uso comienza cuando el Administrador modifica la información de la cuenta.
+2. El Administrador ingresa un correo electrónico que ya se encuentra asociado a otra cuenta en el sistema.
+3. El Sistema detecta la duplicidad del correo electrónico.
+4. El Sistema muestra el mensaje "El correo electrónico ingresado ya está registrado por otro usuario".
+5. El caso de uso finaliza sin actualizar la cuenta.
 
 ---
 
 # CU-03 Desactivar Cuenta
 
-(Contenido)
+## Descripción
+
+Permite al Administrador desactivar o suspender el acceso de una cuenta de usuario existente en el sistema del condominio, bloqueando su inicio de sesión sin eliminar sus datos históricos.
+
+## Actor Principal
+
+Administrador
+
+## Precondiciones
+
+- El Administrador ha iniciado sesión.
+- Posee permisos para gestionar usuarios.
+- La cuenta del Usuario existe en el sistema y actualmente se encuentra en estado activo.
+
+## Postcondiciones
+
+- El estado de la cuenta se actualiza a "desactivada".
+- El usuario propietario de la cuenta pierde el acceso al sistema.
+
+## Escenario Básico
+
+1. El caso de uso comienza cuando el Administrador selecciona la cuenta de un Usuario específico.
+2. El Sistema muestra la información general de la cuenta y su estado actual.
+3. El Administrador selecciona la opción de desactivar la cuenta.
+4. El Sistema solicita al Administrador una confirmación para proceder con la desactivación.
+5. El Administrador confirma la acción.
+6. El Sistema actualiza el estado de la cuenta a "desactivada" en la base de datos.
+7. El caso de uso termina cuando el Sistema muestra el mensaje "Cuenta desactivada exitosamente".
+
+## Escenarios Alternos
+
+### A1. Cuenta ya desactivada
+
+1. El caso de uso comienza cuando el Administrador selecciona la cuenta de un Usuario.
+2. El Sistema detecta que el estado actual de la cuenta ya es "desactivada".
+3. El Sistema muestra el mensaje "La cuenta seleccionada ya se encuentra desactivada".
+4. El caso de uso finaliza sin realizar modificaciones en el sistema.
+
+### A2. Cancelación de la operación
+
+1. El caso de uso comienza cuando el Administrador selecciona la cuenta de un Usuario.
+2. El Sistema solicita confirmación de la acción (Paso 4 del Escenario Básico).
+3. El Administrador selecciona la opción de cancelar o rechaza la confirmación.
+4. El Sistema muestra el mensaje "Operación cancelada".
+5. El caso de uso finaliza sin modificar el estado de la cuenta.
 
 ---
 
@@ -152,7 +245,7 @@ Administrador
 5. El Sistema registra el rol con sus permisos.
 6. El caso de uso termina cuando el Sistema muestra el mensaje "Permisos del rol registrados exitosamente".
 
-## Escenarios Alternativos 
+## Escenarios Alternativos
 
 ### A1. Editar permisos de un rol existente
 
@@ -234,13 +327,117 @@ Usuario, Administrador
 
 # CU-07 Actualizar Perfil
 
-(Contenido)
+## Descripción
+
+Permite al Usuario actualizar la información de su perfil en el sistema del condominio.
+
+## Actor Principal
+
+Usuario
+
+## Precondiciones
+
+- El Usuario ha iniciado sesión.
+- El Usuario posee una cuenta activa en el sistema.
+
+## Postcondiciones
+
+- La información del perfil del Usuario queda actualizada en el sistema
+
+## Escenario Básico
+
+1. El caso de uso comienza cuando el Usuario accede a la sección de configuración de perfil.
+2. El Sistema muestra la información actual del perfil.
+3. El Usuario modifica los datos que desea actualizar.
+4. El Sistema valida la información ingresada.
+5. El Usuario confirma la actualización del perfil.
+6. El Sistema registra los cambios realizados.
+7. El caso de uso termina cuando el Sistema muestra el mensaje "Perfil actualizado exitosamente".
+
+## Escenarios Alternos
+
+### A1. Datos inválidos
+
+1. El caso de uso comienza cuando el Usuario modifica la información de su perfil.
+2. El Sistema detecta que uno o más datos ingresados son inválidos.
+3. El Sistema muestra el mensaje "Los datos ingresados no son válidos".
+4. El caso de uso finaliza sin actualizar el perfil.
+
+### A2. Campos obligatorios vacíos
+
+1. El caso de uso comienza cuando el Usuario modifica la información de su perfil.
+2. El Sistema detecta que uno o más campos obligatorios están vacíos.
+3. El Sistema muestra el mensaje "Existen campos obligatorios vacíos".
+4. El caso de uso finaliza sin actualizar el perfil.
 
 ---
 
 # CU-08 Recuperar Contraseña
 
-(Contenido)
+## Descripción
+
+Permite al Usuario recuperar el acceso a su cuenta mediante el restablecimiento de su contraseña utilizando un token de verificación enviado a su correo electrónico.
+
+## Actor Principal
+
+Usuario
+
+## Precondiciones
+
+- El Usuario posee una cuenta registrada en el Sistema.
+- El Usuario tiene acceso al correo electrónico asociado a la cuenta.
+
+## Postcondiciones
+
+- La contraseña de la cuenta es actualizada exitosamente.
+- El Usuario puede iniciar sesión con la nueva contraseña.
+
+## Escenario Básico
+
+1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
+2. El Usuario proporciona el correo electrónico asociado a su cuenta.
+3. El Sistema valida que el correo electrónico exista.
+4. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+5. El Usuario ingresa el token recibido.
+6. El Sistema valida el token de recuperación.
+7. El Usuario proporciona la nueva contraseña.
+8. El Sistema valida la nueva contraseña.
+9. El Sistema actualiza la contraseña de la cuenta.
+10. El caso de uso termina cuando el Sistema muestra el mensaje "Contraseña restablecida exitosamente".
+
+## Escenarios Alternativos
+
+### A1. Correo electrónico no registrado
+
+1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
+2. El Usuario proporciona el correo electrónico asociado a su cuenta.
+3. El Sistema detecta que el correo electrónico no se encuentra registrado.
+4. El Sistema muestra el mensaje "No existe una cuenta asociada a este correo electrónico".
+5. El caso de uso finaliza sin iniciar el proceso de recuperación.
+
+### A2. Token inválido o expirado
+
+1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
+2. El Usuario proporciona el correo electrónico asociado a su cuenta.
+3. El Sistema valida que el correo electrónico exista.
+4. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+5. El Usuario ingresa el token recibido.
+6. El Sistema detecta que el token es inválido o ha expirado.
+7. El Sistema muestra el mensaje "Token inválido o expirado".
+8. El caso de uso finaliza sin restablecer la contraseña.
+
+### A3. Contraseña no válida
+
+1. El caso de uso comienza cuando el Usuario intenta recuperar su contraseña.
+2. El Usuario proporciona el correo electrónico asociado a su cuenta.
+3. El Sistema valida que el correo electrónico exista.
+4. El Sistema ejecuta el caso de uso "Enviar token de restablecimiento".
+5. El Usuario ingresa el token recibido.
+6. El Sistema valida el token de recuperación.
+7. El Usuario proporciona una nueva contraseña.
+8. El Sistema detecta que la contraseña no cumple con las políticas de seguridad establecidas.
+9. El Sistema muestra el mensaje "La contraseña no cumple con los requisitos de seguridad".
+10. El caso de uso finaliza sin actualizar la contraseña.
 
 ---
 
