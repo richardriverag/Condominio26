@@ -2,7 +2,7 @@
 
 title Módulo GRF - Comunicación
 
-' Configuración de estilo
+skinparam actorStyle awesome
 left to right direction
 skinparam packageStyle rectangle
 
@@ -14,31 +14,25 @@ skinparam usecase {
     ActorBackgroundColor #EEF5FF
 }
 
-skinparam note {
-    BackgroundColor #E8F8F5
-    BorderColor #1ABC9C
+actor "Administrador" as ADM
+actor "Residente" as RES
+actor "Trabajador" as TRA
+actor "Sistema (Automático)" as SIS
+
+rectangle "Módulo GRF - Comunicación" {
+
+    usecase "enviarMensajeAResidentes" as CU1
+    usecase "enviarComunicadoATrabajadores" as CU2
+    usecase "enviarMensajeGlobal" as CU3
+    usecase "crearAnuncioGeneral" as CU4
+    usecase "modificarAnuncioGeneral" as CU5
+    usecase "eliminarAnuncioGeneral" as CU6
+    usecase "crearReporteDeComunicacion" as CU7
+    usecase "consultarHistorialDeMensajes" as CU8
+    usecase "registrarHistorialDeComunicaciones" as CU9
+    usecase "notificarMensajeRecibido" as CU10
 }
 
-' Definición de actores, casos de uso y relaciones
-rectangle {
-
-    ' Actores
-    actor "Administrador" as ADM
-    actor "Residente" as RES
-    actor "Trabajador" as TRA
-
-    ' Casos de uso
-    usecase "Enviar mensaje a residentes" as CU1
-    usecase "Enviar comunicado a trabajadores" as CU2
-    usecase "Enviar mensaje global" as CU3
-    usecase "Enviar mensaje directo" as CU4
-    usecase "Crear reporte de comunicación" as CU5
-    usecase "Modificar anuncio general" as CU6
-    usecase "Eliminar anuncio general" as CU7
-
-}
-
-' Relaciones Administrador
 ADM --> CU1
 ADM --> CU2
 ADM --> CU3
@@ -46,11 +40,12 @@ ADM --> CU4
 ADM --> CU5
 ADM --> CU6
 ADM --> CU7
+ADM --> CU8
 
-' Relaciones Residente
-RES --> CU4
+RES --> CU8
+TRA --> CU8
 
-' Relaciones Trabajador
-TRA --> CU4
+SIS --> CU9
+SIS --> CU10
 
 @enduml
