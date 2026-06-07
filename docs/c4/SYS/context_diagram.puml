@@ -1,0 +1,26 @@
+@startuml C4_Context_Diagram
+
+!include ../../libs/c4/C4_Context.puml
+
+title Sistema de Gestión de Condominio - Context Diagram
+
+skinparam wrapWidth 100
+
+skinparam nodesep 100
+skinparam ranksep 40
+
+Person(admin, "Administrador", "Gestiona usuarios,\ninmuebles y comunicaciones.")
+Person(president, "Presidente", "Supervisa la administración\ndel condominio.")
+Person(resident, "Residente", "Realiza pagos, reservas\ny recibe notificaciones.")
+Person(owner, "Propietario", "Administra la información\nde sus inmuebles.")
+Person(security, "Personal de Seguridad", "Gestiona visitas\ny controla accesos.")
+
+System(condo, "Sistema de Gestión de Condominio", "Gestiona usuarios, pagos,\ninmuebles, reservas, visitas y comunicaciones.")
+
+Rel(admin, condo, "Administra el sistema")
+Rel(president, condo, "Consulta información\ny recibe reportes")
+Rel(resident, condo, "Gestiona pagos,\nreservas y perfil")
+Rel(owner, condo, "Gestiona propiedades")
+Rel(security, condo, "Registra visitas\ny accesos")
+
+@enduml
