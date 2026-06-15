@@ -1,0 +1,60 @@
+@startuml C4_Component_Diagram_GRF
+
+!include ../libs/c4/C4_Component.puml
+
+skinparam defaultTextAlignment center
+skinparam nodesep 50
+skinparam ranksep 60
+
+title Diagrama de Componentes - Módulo GRF: Comunicación
+
+ContainerDb(database, "Base de Datos", "MySQL", "Almacena mensajes, comunicados,\nanuncios, notificaciones e historial de comunicaciones.")
+
+Container(grb_module, "Módulo GRB", "Java Module", "Proporciona información de usuarios,\nroles, residentes y trabajadores.")
+
+Container_Boundary(desktop_app, "Aplicación de Escritorio - Módulo GRF: Comunicación") {
+
+    ' ── Capa de Presentación ─────────────────────────
+    Component(message_ctrl, "Controlador de Mensajes", "JavaFX Controller", "Interfaz para enviar mensajes a residentes,\ncomunicados a trabajadores y mensajes globales.")
+    Component(announcement_ctrl, "Controlador de Anuncios", "JavaFX Controller", "Interfaz para crear, modificar\ny eliminar anuncios generales.")
+    Component(report_ctrl, "Controlador de Reportes", "JavaFX Controller", "Interfaz para generar reportes\nde comunicación.")
+    Component(history_ctrl, "Controlador de Historial", "JavaFX Controller", "Interfaz para consultar el historial\nde comunicaciones.")
+
+    ' ── Capa de Lógica de Negocio ────────────────────
+    Component(message_service, "Servicio de Mensajes", "Java Service", "Gestiona el envío de mensajes a residentes,\ncomunicados a trabajadores y mensajes globales.")
+    Component(announcement_service, "Servicio de Anuncios", "Java Service", "Gestiona la creación, modificación\ny eliminación de anuncios generales.")
+    Component(report_service, "Servicio de Reportes", "Java Service", "Genera reportes a partir del historial\nde comunicaciones.")
+    Component(notification_service, "Servicio de Notificaciones", "Java Service", "Genera notificaciones para los usuarios\ndestinatarios de comunicaciones.")
+    Component(history_service, "Servicio de Historial", "Java Service", "Registra mensajes, comunicados,\nanuncios y notificaciones.")
+
+    ' ── Capa de Acceso a Datos ───────────────────────
+    Component(message_repo, "Repositorio de Mensajes", "Java DAO", "Consultas SQL para guardar y recuperar\nmensajes y comunicados.")
+    Component(announcement_repo, "Repositorio de Anuncios", "Java DAO", "Consultas SQL para crear, modificar\ny eliminar anuncios generales.")
+    Component(history_repo, "Repositorio de Historial", "Java DAO", "Consultas SQL para guardar y consultar\nel historial de comunicaciones.")
+}
+
+Rel(message_ctrl, message_service, "Solicita envío de mensajes y comunicados")
+Rel(announcement_ctrl, announcement_service, "Gestiona anuncios generales")
+Rel(report_ctrl, report_service, "Solicita generación de reportes")
+Rel(history_ctrl, history_service, "Consulta historial de comunicaciones")
+
+Rel(message_service, message_repo, "Guarda y consulta mensajes/comunicados")
+Rel(announcement_service, announcement_repo, "Guarda, actualiza y elimina anuncios")
+Rel(history_service, history_repo, "Guarda y consulta historial")
+
+Rel(message_service, notification_service, "Genera notificaciones a destinatarios")
+Rel(message_service, history_service, "Registra mensajes y comunicados enviados")
+Rel(announcement_service, notification_service, "Genera notificaciones de anuncios")
+Rel(announcement_service, history_service, "Registra creación, modificación y eliminación de anuncios")
+Rel(report_service, history_service, "Consulta historial para generar reportes")
+Rel(notification_service, history_service, "Registra notificaciones generadas")
+
+Rel(message_repo, database, "Lee/Escribe", "JDBC/SQL")
+Rel(announcement_repo, database, "Lee/Escribe", "JDBC/SQL")
+Rel(history_repo, database, "Lee/Escribe", "JDBC/SQL")
+
+Rel(message_service, grb_module, "Consulta residentes, trabajadores y roles")
+Rel(announcement_service, grb_module, "Valida rol Administrador")
+Rel(history_service, grb_module, "Valida permisos de consulta")
+
+@enduml
