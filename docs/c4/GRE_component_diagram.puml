@@ -10,14 +10,19 @@ title Diagrama de Componentes - Módulo GRE: Check-in
 skinparam defaultFontName Arial
 skinparam shadowing false
 skinparam linetype ortho
-skinparam nodesep 90
-skinparam ranksep 100
-skinparam wrapWidth 180
-skinparam maxMessageSize 120
+
+skinparam nodesep 130
+skinparam ranksep 160
+skinparam wrapWidth 220
+skinparam maxMessageSize 160
+
+skinparam ArrowFontSize 10
+skinparam ArrowThickness 1
+skinparam Padding 8
 
 Person(presidente, "Presidente", "Supervisa la administración del condominio.")
-Person(security, "Personal de Seguridad", "Gestiona visitas\ny controla accesos.")
 Person(residente, "Residente", "Realiza pagos, reservas y recibe notificaciones.")
+Person(security, "Personal de Seguridad", "Gestiona visitas\ny controla accesos.")
 
 Lay_R(presidente, security)
 Lay_R(security, residente)
@@ -29,8 +34,8 @@ System_Boundary(sistema, "Sistema de Gestión de Condominio") {
         Boundary(moduloCheckIn, "Módulo GRE") {
 
             Component(vistaPresidente, "Vista Presidente", "JavaFX", "Interfaz para consultar historial de entradas y enviar alertas del condominio.")
-            Component(vistaSeguridad, "Vista Seguridad", "JavaFX", "Interfaz para registrar entradas, controlar accesos y gestionar parqueaderos de visita.")
             Component(vistaResidente, "Vista Residente", "JavaFX", "Interfaz para programar visitas y consultar notificaciones relacionadas.")
+            Component(vistaSeguridad, "Vista Seguridad", "JavaFX", "Interfaz para registrar entradas, controlar accesos y gestionar parqueaderos de visita.")
 
             Component(controladorEntradas, "Controlador de Entradas", "Java Controller", "Recibe solicitudes de registro de entradas de residentes, visitantes y personas externas.")
             Component(controladorVisitas, "Controlador de Visitas", "Java Controller", "Gestiona las solicitudes relacionadas con la programación de visitas.")
@@ -58,42 +63,43 @@ System_Boundary(sistema, "Sistema de Gestión de Condominio") {
     ContainerDb(baseDatos, "Base de Datos", "MySQL", "Almacena visitantes, residentes, entradas, visitas programadas, parqueaderos, alertas e historial.")
 }
 
-Rel_D(presidente, vistaPresidente, "Consulta historial y envía alertas", "UI")
-Rel_D(security, vistaSeguridad, "Registra entradas y parqueaderos", "UI")
+Rel_D(presidente, vistaPresidente, "Consulta historial\ny envía alertas", "UI")
 Rel_D(residente, vistaResidente, "Programa visitas", "UI")
+Rel_D(security, vistaSeguridad, "Registra entradas\ny parqueaderos", "UI")
 
-Rel_D(vistaSeguridad, controladorEntradas, "Solicita registrar entrada", "Eventos / DTO")
-Rel_D(vistaSeguridad, controladorParqueadero, "Solicita asignar parqueadero", "Eventos / DTO")
+Rel_D(vistaSeguridad, controladorEntradas, "Solicita registrar\nentrada", "Eventos / DTO")
+Rel_D(vistaSeguridad, controladorParqueadero, "Solicita asignar\nparqueadero", "Eventos / DTO")
 
-Rel_D(vistaResidente, controladorVisitas, "Solicita programar visita", "Eventos / DTO")
+Rel_D(vistaResidente, controladorVisitas, "Solicita programar\nvisita", "Eventos / DTO")
 
-Rel_D(vistaPresidente, controladorHistorial, "Solicita consultar historial", "Eventos / DTO")
-Rel_D(vistaPresidente, controladorAlertas, "Solicita enviar alerta", "Eventos / DTO")
+Rel_D(vistaPresidente, controladorHistorial, "Solicita consultar\nhistorial", "Eventos / DTO")
+Rel_D(vistaPresidente, controladorAlertas, "Solicita enviar\nalerta", "Eventos / DTO")
+Rel_D(vistaPresidente, controladorVisitas, "Solicita consultar\nvisitas programadas", "Eventos / DTO")
 
-Rel_D(controladorEntradas, servicioEntradas, "Coordina registro de entradas", "Java")
-Rel_D(controladorVisitas, servicioVisitas, "Coordina programación de visitas", "Java")
-Rel_D(controladorParqueadero, servicioParqueadero, "Coordina uso de parqueaderos", "Java")
-Rel_D(controladorAlertas, servicioAlertas, "Coordina envío de alertas", "Java")
-Rel_D(controladorHistorial, servicioHistorial, "Coordina consulta de historial", "Java")
+Rel_D(controladorEntradas, servicioEntradas, "Coordina registro\nde entradas", "Java")
+Rel_D(controladorVisitas, servicioVisitas, "Coordina programación\nde visitas", "Java")
+Rel_D(controladorParqueadero, servicioParqueadero, "Coordina uso\nde parqueaderos", "Java")
+Rel_D(controladorAlertas, servicioAlertas, "Coordina envío\nde alertas", "Java")
+Rel_D(controladorHistorial, servicioHistorial, "Coordina consulta\nde historial", "Java")
 
-Rel_R(servicioEntradas, moduloUsuarios, "Valida persona relacionada", "Java")
+Rel_R(servicioEntradas, moduloUsuarios, "Valida persona\nrelacionada", "Java")
 Rel_R(servicioVisitas, moduloUsuarios, "Valida residente", "Java")
 
-Rel_R(servicioVisitas, servicioParqueadero, "Solicita asignar parqueadero de visita", "Java")
-Rel_R(servicioParqueadero, moduloGRC, "Consulta disponibilidad de parqueaderos", "Java")
+Rel_R(servicioVisitas, servicioParqueadero, "Solicita asignar\nparqueadero de visita", "Java")
+Rel_R(servicioParqueadero, moduloGRC, "Consulta disponibilidad\nde parqueaderos", "Java")
 
-Rel_R(servicioEntradas, servicioNotificaciones, "Solicita notificar entrada", "Java")
-Rel_R(servicioVisitas, servicioNotificaciones, "Solicita notificar visita", "Java")
-Rel_R(servicioAlertas, servicioNotificaciones, "Solicita enviar alerta", "Java")
+Rel_R(servicioEntradas, servicioNotificaciones, "Solicita notificar\nentrada", "Java")
+Rel_R(servicioVisitas, servicioNotificaciones, "Solicita notificar\nvisita", "Java")
+Rel_R(servicioAlertas, servicioNotificaciones, "Solicita enviar\nalerta", "Java")
 
-Rel_R(servicioNotificaciones, moduloComunicacion, "Envía notificaciones", "Java")
+Rel_R(servicioNotificaciones, moduloComunicacion, "Envía\nnotificaciones", "Java")
 
-Rel_D(servicioEntradas, repositorioCheckIn, "Guarda entradas", "SQL")
-Rel_D(servicioVisitas, repositorioCheckIn, "Guarda visitas programadas", "SQL")
-Rel_D(servicioParqueadero, repositorioCheckIn, "Guarda parqueaderos", "SQL")
-Rel_D(servicioHistorial, repositorioCheckIn, "Consulta historial", "SQL")
+Rel_D(servicioEntradas, repositorioCheckIn, "Guarda\nentradas", "SQL")
+Rel_D(servicioVisitas, repositorioCheckIn, "Guarda visitas\nprogramadas", "SQL")
+Rel_D(servicioParqueadero, repositorioCheckIn, "Guarda\nparqueaderos", "SQL")
+Rel_D(servicioHistorial, repositorioCheckIn, "Consulta\nhistorial", "SQL")
 
-Rel_D(repositorioCheckIn, baseDatos, "Lee y escribe datos", "JDBC / SQL")
+Rel_D(repositorioCheckIn, baseDatos, "Lee y escribe\ndatos", "JDBC / SQL")
 
 Lay_D(vistaPresidente, controladorHistorial)
 Lay_D(vistaSeguridad, controladorEntradas)
