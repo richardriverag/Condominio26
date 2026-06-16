@@ -1,4 +1,4 @@
-@startuml C4_Component_Diagram_GRC_Fiel_Casos_Uso
+@startuml C4_Component_Diagram_GRC
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 title Diagrama de Componentes - Módulo GRC: Gestión de Inmuebles
