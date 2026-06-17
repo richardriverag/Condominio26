@@ -141,7 +141,6 @@ package "Entidades del Dominio - Módulo GRE" {
 
     ReporteHistorial "1" ..> "0..*" RegistroEntrada : "resume"
     ReporteHistorial "1" ..> "0..*" Visitante : "contabiliza"
-    ReporteHistorial "1" ..> "0..*" Alerta : "incluye"
 
     ' Dependencias
     Visita .down.> EstadoVisita : "<<use>>"
