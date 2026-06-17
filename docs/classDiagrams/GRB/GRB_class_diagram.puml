@@ -1,155 +1,231 @@
-@startuml Diagrama_Clases_GRB
+@startuml Diagrama_Clases_GRB_Diseno
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 70
 
-title Diagrama de Clases — Módulo GRB: Gestión de Usuarios y Administradores
+title Diseño Módulo GRB
 
-' ── ENUMERACIONES ────────────────────────────────────────
-enum EstadoCuenta {
-  ACTIVA
-  DESACTIVADA
+' ── Controladores ──────────────────────────────────────────
+package "Controladores (JavaFX)" #DDEEFF {
+
+    class ControladorAutenticacion {
+        - servicioAuth : IServicioAutenticacion
+        + iniciarSesionUI() : void
+        + solicitarRecuperacionUI() : void
+        + validarCodigoUI() : void
+        + restablecerContrasenaUI() : void
+    }
+
+    class ControladorUsuarios {
+        - servicioUsuario : IServicioUsuario
+        + registrarCuentaUI() : void
+        + actualizarCuentaUI() : void
+        + desactivarCuentaUI() : void
+    }
+
+    class ControladorRoles {
+        - servicioRoles : IServicioRoles
+        + asignarRolUI() : void
+        + definirPermisosUI() : void
+        + consultarRolesUI() : void
+    }
+
+    class ControladorPerfil {
+        - servicioUsuario : IServicioUsuario
+        + actualizarPerfilUI() : void
+    }
 }
 
-enum NombreRol {
-  ADMINISTRADOR
-  PRESIDENTE
-  RESIDENTE
-  PROPIETARIO
-  SEGURIDAD
+' ── Interfaces de Servicio ──────────────────────────────────
+package "Contratos de Servicio (Interfaces)" #F0FFF0 {
+
+    interface IServicioAutenticacion {
+        + validarCredenciales(correo : String, pass : String) : boolean
+        + iniciarRecuperacion(correo : String) : void
+        + validarToken(codigo : String) : boolean
+        + restablecerContrasena(idToken : UUID, nueva : String) : void
+    }
+
+    interface IServicioUsuario {
+        + registrarCuenta(datos : Map) : Cuenta
+        + actualizarCuenta(idCuenta : UUID, datos : Map) : void
+        + desactivarCuenta(idCuenta : UUID) : void
+        + actualizarPerfil(idUsuario : UUID, datos : Map) : void
+    }
+
+    interface IServicioRoles {
+        + asignarRol(idCuenta : UUID, idRol : UUID) : void
+        + definirPermisos(idRol : UUID, permisos : List) : void
+        + obtenerRoles() : List<Rol>
+        + validarPermiso(idCuenta : UUID, recurso : String) : boolean
+    }
+
+    interface IServicioCorreo {
+        + enviarToken(correo : String, codigo : String) : void
+        + generarCodigo() : String
+    }
 }
 
-' ── ENTIDADES DE DOMINIO ─────────────────────────────────
-class Usuario {
-  - idUsuario : UUID
-  - nombre    : String
-  - apellido  : String
-  - correo    : String
+' ── Servicios ──────────────────────────────────────────────
+package "Servicios (Lógica de Casos de Uso)" #DDFFDD {
+
+    class ServicioAutenticacion <<service>> {
+        - userRepo  : IUsuarioLector
+        - tokenRepo : IRepositorioToken
+        - emailSvc  : IServicioCorreo
+        + validarCredenciales(correo : String, pass : String) : boolean
+        + iniciarRecuperacion(correo : String) : void
+        + validarToken(codigo : String) : boolean
+        + restablecerContrasena(idToken : UUID, nueva : String) : void
+    }
+
+    class ServicioUsuario <<service>> {
+        - userLector  : IUsuarioLector
+        - userEscritor : IUsuarioEscritor
+        - rolSvc       : IServicioRoles
+        + registrarCuenta(datos : Map) : Cuenta
+        + actualizarCuenta(idCuenta : UUID, datos : Map) : void
+        + desactivarCuenta(idCuenta : UUID) : void
+        + actualizarPerfil(idUsuario : UUID, datos : Map) : void
+    }
+
+    class ServicioRoles <<service>> {
+        - rolRepo : IRepositorioRol
+        + asignarRol(idCuenta : UUID, idRol : UUID) : void
+        + definirPermisos(idRol : UUID, permisos : List) : void
+        + obtenerRoles() : List<Rol>
+        + validarPermiso(idCuenta : UUID, recurso : String) : boolean
+    }
+
+    class ServicioCorreo <<service>> {
+        - smtpHost : String
+        - smtpPort : Integer
+        + enviarToken(correo : String, codigo : String) : void
+        + generarCodigo() : String
+    }
 }
 
-class Cuenta {
-  - idCuenta          : UUID
-  - contrasena        : String
-  - estado            : EstadoCuenta
-  - fechaCreacion     : Date
-  - fechaModificacion : Date
-  --
-  + activar()                   : void
-  + desactivar()                : void
-  + actualizarInfo(datos : Map) : void
+' ── Repositorios (Interfaces ISP) ──────────────────────────
+package "Repositorios (DAO)" #FFEECC {
+
+    interface IUsuarioLector {
+        + buscarPorCorreo(correo : String) : Usuario
+        + buscarPorId(idUsuario : UUID) : Usuario
+    }
+
+    interface IUsuarioEscritor {
+        + guardarUsuario(usuario : Usuario) : void
+        + actualizarUsuario(usuario : Usuario) : void
+        + desactivarCuenta(idCuenta : UUID) : void
+    }
+
+    interface IRepositorioRol {
+        + buscarPorId(idRol : UUID) : Rol
+        + listarTodos() : List<Rol>
+        + guardarAsignacion(idCuenta : UUID, idRol : UUID) : void
+    }
+
+    interface IRepositorioToken {
+        + guardarToken(token : TokenRestablecimiento) : void
+        + buscarPorCodigo(codigo : String) : TokenRestablecimiento
+        + invalidarToken(idToken : UUID) : void
+    }
 }
 
-class Perfil {
-  - idPerfil           : UUID
-  - telefono           : String
-  - direccion          : String
-  - fotoPerfil         : String
-  - fechaActualizacion : Date
-  --
-  + actualizar(datos : Map) : void
+' ── Entidades del Dominio ───────────────────────────────────
+package "Entidades (Dominio)" #FFE0E0 {
+
+    enum EstadoCuenta {
+        ACTIVA
+        DESACTIVADA
+    }
+
+    enum NombreRol {
+        ADMINISTRADOR
+        PRESIDENTE
+        RESIDENTE
+        PROPIETARIO
+        PERSONAL_SEGURIDAD
+    }
+
+    class Usuario {
+        - idUsuario  : UUID
+        - nombre     : String
+        - apellido   : String
+        - correo     : String
+        - contraseña : String
+        + verificarContraseña(pass : String) : boolean
+    }
+
+    class Cuenta {
+        - idCuenta          : UUID
+        - estado            : EstadoCuenta
+        - fechaCreacion     : Date
+        - fechaModificacion : Date
+        + activar() : void
+        + desactivar() : void
+        + validarCredenciales(correo : String, pass : String) : boolean
+    }
+
+    class Perfil {
+        - idPerfil           : UUID
+        - telefono           : String
+        - direccion          : String
+        - fotoPerfil         : String
+        - fechaActualizacion : Date
+        + actualizar(datos : Map) : void
+    }
+
+    class Rol {
+        - idRol       : UUID
+        - nombre      : NombreRol
+        - descripcion : String
+        + obtenerPermisos() : List<Permiso>
+    }
+
+    class Permiso {
+        - idPermiso   : UUID
+        - nombre      : String
+        - descripcion : String
+        - recurso     : String
+        + esValido() : boolean
+    }
+
+    class TokenRestablecimiento {
+        - idToken         : UUID
+        - codigo          : String
+        - fechaExpiracion : Date
+        - intentos        : Integer
+        + esValido()     : boolean
+        + estaExpirado() : boolean
+    }
 }
 
-class Rol {
-  - idRol       : UUID
-  - nombre      : NombreRol
-  - descripcion : String
-  --
-  + obtenerPermisos() : List<Permiso>
-}
+' ── Relaciones Arquitectónicas ──────────────────────────────
 
-class Permiso {
-  - idPermiso   : UUID
-  - nombre      : String
-  - descripcion : String
-  - recurso     : String
-  --
-  + esValido() : boolean
-}
+' Controladores → Interfaces de servicio
+ControladorAutenticacion --> IServicioAutenticacion
+ControladorUsuarios      --> IServicioUsuario
+ControladorRoles         --> IServicioRoles
+ControladorPerfil        --> IServicioUsuario
 
-class TokenRestablecimiento {
-  - idToken         : UUID
-  - codigo          : String
-  - fechaExpiracion : Date
-  - intentos        : Integer
-  --
-  + esValido()     : boolean
-  + estaExpirado() : boolean
-}
+' Implementaciones de servicio
+ServicioAutenticacion .up.|> IServicioAutenticacion
+ServicioUsuario       .up.|> IServicioUsuario
+ServicioRoles         .up.|> IServicioRoles
+ServicioCorreo        .up.|> IServicioCorreo
 
-' ── INTERFACES DE SERVICIOS ──────────────────
-interface IServicioAutenticacion {
-  + validarCredenciales(correo : String, pass : String)       : boolean
-  + iniciarRecuperacion(correo : String)                      : void
-  + validarToken(codigo : String)                             : boolean
-  + restablecerContrasena(idToken : UUID, nueva : String)     : void
-}
+' Servicios → Repositorios
+ServicioAutenticacion --> IUsuarioLector
+ServicioAutenticacion --> IRepositorioToken
+ServicioAutenticacion --> IServicioCorreo
+ServicioUsuario       --> IUsuarioLector
+ServicioUsuario       --> IUsuarioEscritor
+ServicioUsuario       --> IServicioRoles
+ServicioRoles         --> IRepositorioRol
 
-interface IServicioUsuario {
-  + registrarCuenta(datos : Map)                    : Cuenta
-  + actualizarCuenta(idCuenta : UUID, datos : Map)  : void
-  + desactivarCuenta(idCuenta : UUID)               : void
-  + actualizarPerfil(idUsuario : UUID, datos : Map) : void
-}
-
-interface IServicioRoles {
-  + asignarRol(idCuenta : UUID, idRol : UUID)         : void
-  + definirPermisos(idRol : UUID, permisos : List)    : void
-  + obtenerRoles()                                    : List<Rol>
-  + validarPermiso(idCuenta : UUID, recurso : String) : boolean
-}
-
-interface IServicioCorreo {
-  + generarCodigo()                               : String
-  + enviarToken(correo : String, codigo : String) : void
-}
-
-' ── IMPLEMENTACIONES DE SERVICIOS ────────────────────────
-class ServicioAutenticacion <<service>> implements IServicioAutenticacion {
-}
-
-class ServicioUsuario <<service>> implements IServicioUsuario {
-}
-
-class ServicioRoles <<service>> implements IServicioRoles {
-}
-
-class ServicioCorreo <<service>> implements IServicioCorreo {
-}
-
-' ── INTERFACES DE REPOSITORIOS ─────────────────────
-interface IUsuarioLector <<repository>> {
-  + findById(id : UUID)           : Usuario
-  + findByCorreo(correo : String) : Usuario
-}
-
-interface IUsuarioEscritor <<repository>> {
-  + save(usuario : Usuario)   : void
-  + update(usuario : Usuario) : void
-}
-
-interface IRepositorioRol <<repository>> {
-  + findById(id : UUID)                        : Rol
-  + findAll()                                  : List<Rol>
-  + save(rol : Rol)                            : void
-  + asignarACuenta(idCuenta : UUID, idRol : UUID) : void
-}
-
-interface IRepositorioToken <<repository>> {
-  + save(token : TokenRestablecimiento)   : void
-  + findByCodigo(codigo : String)         : TokenRestablecimiento
-  + deleteByIdCuenta(idCuenta : UUID)     : void
-}
-
-' ── RELACIONES ENTRE ENTIDADES ───────────────────────────
-Usuario "1" *-- "1" Cuenta  : posee >
-Usuario "1" *-- "1" Perfil  : tiene >
-
-Cuenta ..> EstadoCuenta : usa
-Rol   ..> NombreRol     : usa
-
-Cuenta "1" -- "*" Rol       : asignado a >
-Rol    "1" *-- "1..*" Permiso : define >
-
-Cuenta "1" -- "0..*" TokenRestablecimiento : genera >
-
-' ── DEPENDENCIAS SERVICIOS → ENTIDADES ───────────────────
+' Servicios → Entidades
 ServicioAutenticacion ..> Cuenta                : <<usa>>
 ServicioAutenticacion ..> TokenRestablecimiento : <<usa>>
 ServicioUsuario       ..> Cuenta                : <<usa>>
@@ -158,16 +234,13 @@ ServicioRoles         ..> Rol                   : <<usa>>
 ServicioRoles         ..> Permiso               : <<usa>>
 ServicioCorreo        ..> TokenRestablecimiento : <<usa>>
 
-' ── DEPENDENCIAS SERVICIOS → REPOSITORIOS ────────────────
-ServicioAutenticacion ..> IUsuarioLector   : <<usa>>
-ServicioAutenticacion ..> IRepositorioToken : <<usa>>
-ServicioUsuario       ..> IUsuarioLector   : <<usa>>
-ServicioUsuario       ..> IUsuarioEscritor : <<usa>>
-ServicioRoles         ..> IRepositorioRol  : <<usa>>
-ServicioCorreo        ..> IRepositorioToken : <<usa>>
-
-' ── DEPENDENCIAS ENTRE SERVICIOS ─────────────────────────
-ServicioAutenticacion ..> IServicioCorreo : <<usa>>
-ServicioUsuario       ..> IServicioRoles  : <<usa>>
+' Relaciones entre entidades
+Usuario "1" *-- "1" Cuenta                   : posee
+Usuario "1" --  "1" Perfil                   : tiene
+Cuenta  "*" --  "*" Rol                      : asignado a
+Rol     *--  "1..*" Permiso                  : define
+Cuenta  "1" --  "0..*" TokenRestablecimiento : genera >
+Cuenta  .>  EstadoCuenta                     : <<use>>
+Rol     .>  NombreRol                        : <<use>>
 
 @enduml
