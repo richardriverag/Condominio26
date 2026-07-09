@@ -29,3 +29,8 @@ Rel(condominio_sys, payment_sys, "Procesa y confirma pagos")
 Rel(condominio_sys, gmail_sys, "Envía código de recuperación\nde contraseña", "SMTP")
 
 @enduml
+
+
+
+en casos de uso, eliminar *eliminarFormaDePagoRecurrente*,
+registrarPago es general, se utiliza para alicuotas, multas y reservas
