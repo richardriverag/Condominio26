@@ -27,7 +27,7 @@
          <children>
             <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>
-                  <TextField maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Buscar por código o dirección" HBox.hgrow="ALWAYS" />
+                  <TextField maxWidth="1.7976931348623157E308" promptText="Buscar por código o dirección" HBox.hgrow="ALWAYS" />
                   <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="primary-button" text="Buscar" />
                </children>
             </HBox>
@@ -39,6 +39,16 @@
            final de la pantalla. Reemplaza tu VBox de "hola / Label"
            que era una prueba y ya no la necesitas. -->
       <Region VBox.vgrow="ALWAYS" />
+      <HBox prefHeight="29.0" prefWidth="820.0" spacing="230.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Button mnemonicParsing="false" text="Button" HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" text="Button" HBox.hgrow="ALWAYS" />
+            <TextField HBox.hgrow="ALWAYS" />
+         </children>
+         <padding>
+            <Insets bottom="50.0" left="50.0" right="50.0" top="10.0" />
+         </padding>
+      </HBox>
 
    </children>
 </VBox>
