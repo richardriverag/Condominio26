@@ -1,246 +1,149 @@
-@startuml Diagrama_Clases_GRB_Diseno
+@startuml GRB_Diagrama_Clases
+
+title Diagrama de Clases - Modulo GRB
+
+left to right direction
+
 skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
 skinparam linetype ortho
-skinparam nodesep 60
-skinparam ranksep 70
+skinparam nodesep 70
+skinparam ranksep 80
 
-title Diseño Módulo GRB
-
-' ── Controladores ──────────────────────────────────────────
-package "Controladores (JavaFX)" #DDEEFF {
-
-    class ControladorAutenticacion {
-        - servicioAuth : IServicioAutenticacion
-        + iniciarSesionUI() : void
-        + solicitarRecuperacionUI() : void
-        + validarCodigoUI() : void
-        + restablecerContrasenaUI() : void
-    }
-
-    class ControladorUsuarios {
-        - servicioUsuario : IServicioUsuario
-        + registrarCuentaUI() : void
-        + actualizarCuentaUI() : void
-        + desactivarCuentaUI() : void
-    }
-
-    class ControladorRoles {
-        - servicioRoles : IServicioRoles
-        + asignarRolUI() : void
-        + definirPermisosUI() : void
-        + consultarRolesUI() : void
-    }
-
-    class ControladorPerfil {
-        - servicioUsuario : IServicioUsuario
-        + actualizarPerfilUI() : void
-    }
+skinparam class {
+    BackgroundColor #E8F1FF
+    BorderColor #2F5EA8
+    ArrowColor #2F5EA8
+    FontColor #1F3F73
 }
 
-' ── Interfaces de Servicio ──────────────────────────────────
-package "Contratos de Servicio (Interfaces)" #F0FFF0 {
-
-    interface IServicioAutenticacion {
-        + validarCredenciales(correo : String, pass : String) : boolean
-        + iniciarRecuperacion(correo : String) : void
-        + validarToken(codigo : String) : boolean
-        + restablecerContrasena(idToken : UUID, nueva : String) : void
-    }
-
-    interface IServicioUsuario {
-        + registrarCuenta(datos : Map) : Cuenta
-        + actualizarCuenta(idCuenta : UUID, datos : Map) : void
-        + desactivarCuenta(idCuenta : UUID) : void
-        + actualizarPerfil(idUsuario : UUID, datos : Map) : void
-    }
-
-    interface IServicioRoles {
-        + asignarRol(idCuenta : UUID, idRol : UUID) : void
-        + definirPermisos(idRol : UUID, permisos : List) : void
-        + obtenerRoles() : List<Rol>
-        + validarPermiso(idCuenta : UUID, recurso : String) : boolean
-    }
-
-    interface IServicioCorreo {
-        + enviarToken(correo : String, codigo : String) : void
-        + generarCodigo() : String
-    }
+skinparam interface {
+    BackgroundColor #F4F8FF
+    BorderColor #2F5EA8
+    FontColor #1F3F73
 }
 
-' ── Servicios ──────────────────────────────────────────────
-package "Servicios (Lógica de Casos de Uso)" #DDFFDD {
-
-    class ServicioAutenticacion <<service>> {
-        - userRepo  : IUsuarioLector
-        - tokenRepo : IRepositorioToken
-        - emailSvc  : IServicioCorreo
-        + validarCredenciales(correo : String, pass : String) : boolean
-        + iniciarRecuperacion(correo : String) : void
-        + validarToken(codigo : String) : boolean
-        + restablecerContrasena(idToken : UUID, nueva : String) : void
-    }
-
-    class ServicioUsuario <<service>> {
-        - userLector  : IUsuarioLector
-        - userEscritor : IUsuarioEscritor
-        - rolSvc       : IServicioRoles
-        + registrarCuenta(datos : Map) : Cuenta
-        + actualizarCuenta(idCuenta : UUID, datos : Map) : void
-        + desactivarCuenta(idCuenta : UUID) : void
-        + actualizarPerfil(idUsuario : UUID, datos : Map) : void
-    }
-
-    class ServicioRoles <<service>> {
-        - rolRepo : IRepositorioRol
-        + asignarRol(idCuenta : UUID, idRol : UUID) : void
-        + definirPermisos(idRol : UUID, permisos : List) : void
-        + obtenerRoles() : List<Rol>
-        + validarPermiso(idCuenta : UUID, recurso : String) : boolean
-    }
-
-    class ServicioCorreo <<service>> {
-        - smtpHost : String
-        - smtpPort : Integer
-        + enviarToken(correo : String, codigo : String) : void
-        + generarCodigo() : String
-    }
+skinparam enum {
+    BackgroundColor #EEF5FF
+    BorderColor #1F3F73
+    FontColor #1F3F73
 }
 
-' ── Repositorios (Interfaces ISP) ──────────────────────────
-package "Repositorios (DAO)" #FFEECC {
+package "Entidades del Dominio - Modulo GRB" {
 
-    interface IUsuarioLector {
-        + buscarPorCorreo(correo : String) : Usuario
-        + buscarPorId(idUsuario : UUID) : Usuario
+    package "Cuentas y Perfiles" #FFF7E6 {
+
+        enum EstadoCuenta {
+            ACTIVA
+            DESACTIVADA
+        }
+
+        class Usuario {
+            - idUsuario: UUID
+            - nombre: String
+            - apellido: String
+            - correo: String
+        }
+
+        class Cuenta {
+            - idCuenta: UUID
+            - contrasena: String
+            - estado: EstadoCuenta
+            - fechaCreacion: Date
+            - fechaModificacion: Date
+            + activar(): void
+            + desactivar(): void
+        }
+
+        class Perfil {
+            - idPerfil: UUID
+            - telefono: String
+            - direccion: String
+            - fotoPerfil: String
+            - fechaActualizacion: Date
+        }
+
+        Usuario "1" *-- "1" Cuenta : posee
+        Usuario "1" -- "1" Perfil : tiene
+        Cuenta ..> EstadoCuenta : <<use>>
+
+        EstadoCuenta -[hidden]down- Usuario
+        Usuario -[hidden]down- Cuenta
+        Cuenta -[hidden]down- Perfil
     }
 
-    interface IUsuarioEscritor {
-        + guardarUsuario(usuario : Usuario) : void
-        + actualizarUsuario(usuario : Usuario) : void
-        + desactivarCuenta(idCuenta : UUID) : void
+    package "Roles y Permisos" #EEF9F1 {
+
+        enum NombreRol {
+            ADMINISTRADOR
+            RESIDENTE
+            PROPIETARIO
+            PERSONAL_SEGURIDAD
+            PRESIDENTE
+        }
+
+        class Rol {
+            - idRol: UUID
+            - nombre: NombreRol
+            - descripcion: String
+            + obtenerPermisos(): List<Permiso>
+        }
+
+        class Permiso {
+            - idPermiso: UUID
+            - nombre: String
+            - recurso: String
+        }
+
+        Rol "1" *-- "1..*" Permiso : define
+        Rol ..> NombreRol : <<use>>
+
+        NombreRol -[hidden]down- Rol
+        Rol -[hidden]down- Permiso
     }
 
-    interface IRepositorioRol {
-        + buscarPorId(idRol : UUID) : Rol
-        + listarTodos() : List<Rol>
-        + guardarAsignacion(idCuenta : UUID, idRol : UUID) : void
+    package "Recuperacion de Contrasena" #F5EEFF {
+
+        class TokenRestablecimiento {
+            - idToken: UUID
+            - codigo: String
+            - fechaExpiracion: Date
+            - intentos: Integer
+            + esValido(): boolean
+            + estaExpirado(): boolean
+        }
     }
 
-    interface IRepositorioToken {
-        + guardarToken(token : TokenRestablecimiento) : void
-        + buscarPorCodigo(codigo : String) : TokenRestablecimiento
-        + invalidarToken(idToken : UUID) : void
-    }
+    Cuenta "*" -- "*" Rol : asignado a
+    Cuenta "1" -- "0..*" TokenRestablecimiento : genera
 }
 
-' ── Entidades del Dominio ───────────────────────────────────
-package "Entidades (Dominio)" #FFE0E0 {
+package "Patrones de Diseno - Modulo GRB" #FFF0F0 {
 
-    enum EstadoCuenta {
-        ACTIVA
-        DESACTIVADA
+    class SesionUsuario <<Singleton>> <<core>> {
+        - {static} instancia: SesionUsuario
+        - usuarioActual: Usuario
+        + {static} obtenerInstancia(): SesionUsuario
+        + cerrarSesion(): void
     }
 
-    enum NombreRol {
-        ADMINISTRADOR
-        PRESIDENTE
-        RESIDENTE
-        PROPIETARIO
-        PERSONAL_SEGURIDAD
-    }
-
-    class Usuario {
-        - idUsuario  : UUID
-        - nombre     : String
-        - apellido   : String
-        - correo     : String
-        - contraseña : String
-        + verificarContraseña(pass : String) : boolean
-    }
-
-    class Cuenta {
-        - idCuenta          : UUID
-        - estado            : EstadoCuenta
-        - fechaCreacion     : Date
-        - fechaModificacion : Date
-        + activar() : void
-        + desactivar() : void
-        + validarCredenciales(correo : String, pass : String) : boolean
-    }
-
-    class Perfil {
-        - idPerfil           : UUID
-        - telefono           : String
-        - direccion          : String
-        - fotoPerfil         : String
-        - fechaActualizacion : Date
-        + actualizar(datos : Map) : void
-    }
-
-    class Rol {
-        - idRol       : UUID
-        - nombre      : NombreRol
-        - descripcion : String
-        + obtenerPermisos() : List<Permiso>
-    }
-
-    class Permiso {
-        - idPermiso   : UUID
-        - nombre      : String
-        - descripcion : String
-        - recurso     : String
-        + esValido() : boolean
-    }
-
-    class TokenRestablecimiento {
-        - idToken         : UUID
-        - codigo          : String
-        - fechaExpiracion : Date
-        - intentos        : Integer
-        + esValido()     : boolean
-        + estaExpirado() : boolean
-    }
+    SesionUsuario ..> Usuario : <<use>>
 }
 
-' ── Relaciones Arquitectónicas ──────────────────────────────
+package "Fachada GRB - API para otros modulos" #F0F7FF {
 
-' Controladores → Interfaces de servicio
-ControladorAutenticacion --> IServicioAutenticacion
-ControladorUsuarios      --> IServicioUsuario
-ControladorRoles         --> IServicioRoles
-ControladorPerfil        --> IServicioUsuario
+    interface IGestionUsuariosAPI <<Facade>> {
+        + autenticar(correo: String, contrasena: String): boolean
+        + obtenerUsuarioPorId(idUsuario: UUID): Usuario
+        + validarPermiso(idCuenta: UUID, recurso: String): boolean
+        + listarUsuariosPorRol(rol: NombreRol): List<Usuario>
+        + iniciarRecuperacionContrasena(correo: String): void
+    }
 
-' Implementaciones de servicio
-ServicioAutenticacion .up.|> IServicioAutenticacion
-ServicioUsuario       .up.|> IServicioUsuario
-ServicioRoles         .up.|> IServicioRoles
-ServicioCorreo        .up.|> IServicioCorreo
-
-' Servicios → Repositorios
-ServicioAutenticacion --> IUsuarioLector
-ServicioAutenticacion --> IRepositorioToken
-ServicioAutenticacion --> IServicioCorreo
-ServicioUsuario       --> IUsuarioLector
-ServicioUsuario       --> IUsuarioEscritor
-ServicioUsuario       --> IServicioRoles
-ServicioRoles         --> IRepositorioRol
-
-' Servicios → Entidades
-ServicioAutenticacion ..> Cuenta                : <<usa>>
-ServicioAutenticacion ..> TokenRestablecimiento : <<usa>>
-ServicioUsuario       ..> Cuenta                : <<usa>>
-ServicioUsuario       ..> Perfil                : <<usa>>
-ServicioRoles         ..> Rol                   : <<usa>>
-ServicioRoles         ..> Permiso               : <<usa>>
-ServicioCorreo        ..> TokenRestablecimiento : <<usa>>
-
-' Relaciones entre entidades
-Usuario "1" *-- "1" Cuenta                   : posee
-Usuario "1" --  "1" Perfil                   : tiene
-Cuenta  "*" --  "*" Rol                      : asignado a
-Rol     *--  "1..*" Permiso                  : define
-Cuenta  "1" --  "0..*" TokenRestablecimiento : genera >
-Cuenta  .>  EstadoCuenta                     : <<use>>
-Rol     .>  NombreRol                        : <<use>>
+    IGestionUsuariosAPI ..> Usuario : <<use>>
+    IGestionUsuariosAPI ..> Cuenta : <<use>>
+    IGestionUsuariosAPI ..> Rol : <<use>>
+}
 
 @enduml
