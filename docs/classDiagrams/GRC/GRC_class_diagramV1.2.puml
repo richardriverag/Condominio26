@@ -1,280 +1,273 @@
-@startuml ClassDiagram_MVC
+@startuml ClassDiagramMVC
 
 skinparam style strictuml
 skinparam packageStyle rect
 skinparam linetype ortho
 skinparam classAttributeIconSize 0
 
-title Diseño Arquitectónico (MVC) - Módulo GRC Gestión de Inmuebles
+title Diseño Arquitectónico (MVC + Patrones) - Módulo GRC
 
-'====================================================
-' PRESENTACIÓN (VISTAS)
-'====================================================
+'==================================================
+' CONTROLADORES
+'==================================================
 
-package "Vista (JavaFX)" {
+package "Controladores (JavaFX)"{
 
 class VistaGestionPropiedades{
-    +mostrarFormulario()
++mostrarFormulario()
 }
 
-class VistaCatalogoCondominio{
-    +mostrarCatalogo()
+class VistaCatalogo{
++mostrarCatalogo()
 }
 
 class VistaCasosFortuitos{
-    +mostrarFormularioCaso()
++mostrarCasos()
 }
-
-}
-
-'====================================================
-' CONTROLADORES
-'====================================================
-
-package "Controladores" {
 
 class ControladorPropiedades{
--servicioGestion:ServicioGestionInmuebles
-
+-servicio:IGestionInmueblesAPI
 +registrarInmueble()
 +actualizarEstado()
-+consultarPropiedades()
 }
 
 class ControladorCatalogo{
--servicioCatalogo:ServicioCatalogo
+-servicio:IGestionInmueblesAPI
++consultarCatalogo()
+}
+
+class ControladorCasos{
+-servicio:IGestionInmueblesAPI
++registrarCaso()
+}
+
+VistaGestionPropiedades ..> ControladorPropiedades
+VistaCatalogo ..> ControladorCatalogo
+VistaCasosFortuitos ..> ControladorCasos
+
+}
+
+'==================================================
+' FACHADA
+'==================================================
+
+package "Fachada del módulo"{
+
+interface IGestionInmueblesAPI <<Facade>>{
+
++consultarPropiedades()
 
 +consultarCatalogo()
-+actualizarCatalogo()
-}
 
-class ControladorCasosFortuitos{
--servicioIncidencias:ServicioIncidencias
++consultarReporteCambios()
 
-+registrarCaso()
-+actualizarCaso()
++registrarCasoFortuito()
+
 }
 
 }
 
-'====================================================
+'==================================================
 ' SERVICIOS
-'====================================================
+'==================================================
 
-package "Servicios" {
+package "Servicios (Logica de Casos de Uso)"{
 
 class ServicioGestionInmuebles{
 
--repositorio:InmuebleDAO
--servicioReportes:ServicioReportes
+-inmuebleDAO:InmuebleDAO
 
-+registrarInmueble()
+-reporteDAO:ReporteCambioDAO
+
++registrar()
+
 +actualizarEstado()
-+consultarPropiedades()
+
 }
 
 class ServicioCatalogo{
 
--repositorio:InmuebleDAO
+-inmuebleDAO:InmuebleDAO
 
 +consultarCatalogo()
-+actualizarCatalogo()
+
 }
 
-class ServicioIncidencias{
+class ServicioCasos{
 
--repositorio:CasoFortuitoDAO
+-casoDAO:CasoFortuitoDAO
 
 +registrarCaso()
-+actualizarCaso()
-+cerrarCaso()
+
 }
 
 class ServicioReportes{
 
+-reporteDAO:ReporteCambioDAO
+
 +registrarCambio()
-+consultarReporte()
 
 }
 
 }
 
-'====================================================
+'==================================================
 ' DAO
-'====================================================
+'==================================================
 
-package "Repositorios (DAO)" {
+package "Repositorios DAO"{
 
 interface InmuebleDAO{
 
 +guardar()
+
 +actualizar()
-+consultar()
-+eliminar()
+
++buscar()
 
 }
-
-class InmuebleDAOImpl
-
-InmuebleDAO <|.. InmuebleDAOImpl
-
 
 interface CasoFortuitoDAO{
 
 +guardar()
-+consultar()
-+actualizar()
+
++listar()
 
 }
 
+interface ReporteCambioDAO{
+
++guardar()
+
++listar()
+
+}
+
+class InmuebleDAOImpl
 class CasoFortuitoDAOImpl
+class ReporteCambioDAOImpl
 
+InmuebleDAO <|.. InmuebleDAOImpl
 CasoFortuitoDAO <|.. CasoFortuitoDAOImpl
+ReporteCambioDAO <|.. ReporteCambioDAOImpl
 
 }
 
-'====================================================
-' DOMINIO
-'====================================================
+'==================================================
+' PATRONES DE DISEÑO
+'==================================================
 
-package "Entidades del Dominio" {
+package "Patrones de Diseño"{
 
-class Usuario <<Partial GRB>>{
--idUsuario:String
--nombre:String
-}
+interface InmuebleFactory <<Factory>>{
 
-abstract class Inmueble{
++crearDepartamento()
 
--idInmueble:int
--codigo:String
--estado:EstadoInmueble
--areaMetrosCuadrados:double
--descripcion:String
++crearSuite()
 
-}
++crearSalonEventos()
 
-enum EstadoInmueble{
++crearAreaRecreacional()
 
-DISPONIBLE
-OCUPADO
-EN_MANTENIMIENTO
-EN_REMODELACION
-VENDIDO
++crearParqueadero()
 
 }
 
-class Departamento{
+class InmuebleFactoryImpl
 
--numeroDepartamento:int
--piso:int
--numeroHabitaciones:int
--numeroBanos:int
--disponibleAlquiler:boolean
--disponibleVenta:boolean
+InmuebleFactory <|.. InmuebleFactoryImpl
 
-}
 
-class Suite{
+interface IteratorInmueble <<Iterator>>{
 
--numeroHabitaciones:int
--numeroBanos:int
--tieneBalcon:boolean
--disponibleAlquiler:boolean
--disponibleVenta:boolean
++hasNext()
+
++next()
 
 }
 
-abstract class EspacioComun{
+class CatalogoIterator
 
--id:String
--nombre:String
--aforoMaximo:int
+IteratorInmueble <|.. CatalogoIterator
 
-}
 
-class SalonDeEventos{
+class GestorPlazas <<Singleton>>{
 
--costoReserva:Double
--requiereGarantia:boolean
+-instance
 
-}
++getInstance()
 
-class AreaRecreacional{
++asignarPlaza()
 
--tipoCancha:String
--requiereEquipamiento:boolean
-
-}
-
-class Parqueadero{
-
--idParqueadero:int
--nombre:String
-
-}
-
-abstract class Plaza{
-
--numeroPlaza:String
--disponible:boolean
-
-}
-
-class PlazaPropietario
-
-class PlazaVisita{
-
--tiempoMaximo:int
-
-}
-
-class CatalogoCondominio{
-
--idCatalogo:int
--fechaActualizacion:Date
-
-}
-
-class Propiedad{
-
--idPropiedad:int
--enAlquiler:boolean
--fechaRegistro:Date
-
-}
-
-class CasoFortuito{
-
--idCaso:int
--descripcion:String
--fecha:Date
--estado:EstadoCaso
-
-}
-
-enum EstadoCaso{
-
-REPORTADO
-EN_PROCESO
-RESUELTO
-
-}
-
-class ReporteCambio{
-
--idReporte:int
--fechaGeneracion:Date
--descripcionCambio:String
++liberarPlaza()
 
 }
 
 }
 
-'====================================================
-' HERENCIA
-'====================================================
+'==================================================
+' ENTIDADES DEL DOMINIO
+'==================================================
 
+package "Dominio"{
+
+
+' ==========================================
+' CLASE ABSTRACTA PADRE (INMUEBLE)
+' ==========================================
+abstract class Inmueble {
+   
+}
+
+enum EstadoInmueble {
+    
+}
+
+' ==========================================
+' CLASES HIJAS (Jerarquía de Inmueble)
+' ==========================================
+class Departamento {
+   
+}
+
+class Suite {
+    
+}
+
+abstract class EspacioComun {
+    
+}
+
+class SalonDeEventos {
+ 
+}
+
+class AreaRecreacional {
+    
+}
+
+class Parqueadero {
+    
+}
+
+' ==========================================
+' PLAZAS
+' ==========================================
+abstract class Plaza {
+    
+}
+
+class PlazaPropietario {
+
+}
+
+class PlazaVisita {
+   
+}
+
+' ==========================================
+' HERENCIAS
+' ==========================================
 Inmueble <|-- Departamento
 Inmueble <|-- Suite
 Inmueble <|-- EspacioComun
@@ -286,58 +279,115 @@ EspacioComun <|-- AreaRecreacional
 Plaza <|-- PlazaPropietario
 Plaza <|-- PlazaVisita
 
-'====================================================
-' RELACIONES DOMINIO
-'====================================================
+' ==========================================
+' COMPOSICIÓN
+' ==========================================
+Parqueadero "1" *-- "0..*" Plaza : "contiene"
 
-CatalogoCondominio "1" o-- "*" Inmueble
+' ==========================================
+' COMPONENTES Y GESTIÓN
+' ==========================================
+class CatalogoCondominio{
+    
 
-Parqueadero "1" *-- "0..*" Plaza
+}
 
-Propiedad "*" --> "1" Usuario
+class ReporteCambio {
+   
+}
 
-Propiedad "*" --> "1" Inmueble
+class Propiedad {
+    
+}
 
-PlazaPropietario "*" --> "1" Propiedad
+class CasoFortuito {
+    
+}
 
-Inmueble "1" --> "*" CasoFortuito
+enum EstadoCaso {
+  
+}
 
+
+'==================================================
+' ENTIDAD PARCIAL (GRB)
+'==================================================
+
+package "Módulo Externo GRB" {
+
+class Usuario <<Partial>>{
+-idUsuario:String
+-nombre:String
+}
+
+}
+
+' ==========================================
+' DEPENDENCIAS CON ENUMS (ESTILO GRD/GRE/GRF)
+' ==========================================
+Inmueble .down.> EstadoInmueble : <<use>>
+CasoFortuito .down.> EstadoCaso : <<use>>
+
+' ==========================================
+' DISPOSICIÓN DE RELACIONES
+' ==========================================
+CatalogoCondominio "1" o-right- "*" Inmueble
 Inmueble "1" --> "*" ReporteCambio
+Inmueble "1" --> "*" CasoFortuito : "registra"
 
-Inmueble --> EstadoInmueble
+Propiedad "*" --> "1" Inmueble : "asociada a"
+Propiedad "*" --> "1" Usuario : "pertenece a (Propietario)"
+PlazaPropietario "*" --> "1" Propiedad : "asignada a"
 
-CasoFortuito --> EstadoCaso
+}
 
-'====================================================
+
+'==================================================
 ' FLUJO MVC
-'====================================================
+'==================================================
 
-VistaGestionPropiedades --> ControladorPropiedades
-VistaCatalogoCondominio --> ControladorCatalogo
-VistaCasosFortuitos --> ControladorCasosFortuitos
+ControladorPropiedades --> IGestionInmueblesAPI
+ControladorCatalogo --> IGestionInmueblesAPI
+ControladorCasos --> IGestionInmueblesAPI
 
-ControladorPropiedades --> ServicioGestionInmuebles
-ControladorCatalogo --> ServicioCatalogo
-ControladorCasosFortuitos --> ServicioIncidencias
+IGestionInmueblesAPI --> ServicioGestionInmuebles
+IGestionInmueblesAPI --> ServicioCatalogo
+IGestionInmueblesAPI --> ServicioCasos
+IGestionInmueblesAPI --> ServicioReportes
 
 ServicioGestionInmuebles --> InmuebleDAO
-ServicioGestionInmuebles --> ServicioReportes
-
 ServicioCatalogo --> InmuebleDAO
+ServicioCasos --> CasoFortuitoDAO
+ServicioReportes --> ReporteCambioDAO
 
-ServicioIncidencias --> CasoFortuitoDAO
-
-'====================================================
-' SERVICIOS USAN EL DOMINIO
-'====================================================
+'==================================================
+' DEPENDENCIAS HACIA EL DOMINIO
+'==================================================
 
 ServicioGestionInmuebles ..> Inmueble
 ServicioGestionInmuebles ..> Propiedad
 
 ServicioCatalogo ..> CatalogoCondominio
 
-ServicioIncidencias ..> CasoFortuito
+ServicioCasos ..> CasoFortuito
 
 ServicioReportes ..> ReporteCambio
+
+'==================================================
+' DEPENDENCIAS CON LOS PATRONES
+'==================================================
+
+ServicioGestionInmuebles ..> InmuebleFactory : crea
+
+CatalogoCondominio ..> IteratorInmueble : createIterator()
+
+InmuebleFactoryImpl ..> Departamento
+InmuebleFactoryImpl ..> Suite
+InmuebleFactoryImpl ..> SalonDeEventos
+InmuebleFactoryImpl ..> AreaRecreacional
+InmuebleFactoryImpl ..> Parqueadero
+
+GestorPlazas ..> Parqueadero
+GestorPlazas ..> Plaza
 
 @enduml
