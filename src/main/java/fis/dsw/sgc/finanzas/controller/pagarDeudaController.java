@@ -9,7 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 // Controlador de la vista Registrar pago externo
-public class RegistrarPagoExternoController {
+public class pagarDeudaController {
 
     @FXML private TextField txtIdDeuda;
     @FXML private TextField txtCedula;
