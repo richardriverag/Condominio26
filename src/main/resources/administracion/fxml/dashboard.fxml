@@ -66,45 +66,43 @@
                                     </children>
                                 </VBox>
 
-                                <!-- FINANZAS -->
-                                <VBox fx:id="finanzasBox">
-                                    <children>
-                                        <Button fx:id="btnFinanzas" mnemonicParsing="false" onAction="#toggleFinanzas"
-                                                styleClass="menu-item" text="FINANZAS">
-                                            <graphic>
-                                                <FontIcon iconLiteral="fa-money" iconSize="16"/>
-                                            </graphic>
-                                        </Button>
-                                        <VBox fx:id="submenuFinanzas" managed="false" styleClass="submenu" visible="false">
-                                            <children>
-                                                <Button mnemonicParsing="false" onAction="#irARegistrarDeuda"
-                                                        styleClass="submenu-item" text="Registrar Deuda"/>
-                                                <Button mnemonicParsing="false" onAction="#irADefinirValorMensualAlicuta"
-                                                        styleClass="submenu-item" text="Definir Valor Alícuota"/>
-                                                <Button mnemonicParsing="false" onAction="#irAGenerarReportePagosInternos"
-                                                        styleClass="submenu-item" text="Consultar Pagos"/>
-                                                <Button mnemonicParsing="false" onAction="#irARegistrarEntidadBancaria"
-                                                        styleClass="submenu-item" text="Registrar Entidad Bancaria"/>
-                                                <Button mnemonicParsing="false" onAction="#irARegistrarPagoExterno"
-                                                        styleClass="submenu-item" text="Registrar Pago Externo"/>
-                                                <Button mnemonicParsing="false" onAction="#irAGenerarReporteGastos"
-                                                        styleClass="submenu-item" text="Generar Reporte Gastos"/>
-                                                <Button mnemonicParsing="false" onAction="#irAGenerarRendicionCuentas"
-                                                        styleClass="submenu-item" text="Generar Rendición Cuentas"/>
-                                                <Button mnemonicParsing="false" onAction="#irAPagarDeuda"
-                                                        styleClass="submenu-item" text="Pagar Deuda"/>
-                                                <Button mnemonicParsing="false" onAction="#irASolicitarPagoEnCuotas"
-                                                        styleClass="submenu-item" text="Solicitar Cuotas"/>
-                                                <Button mnemonicParsing="false" onAction="#irAGenerarCertificadoNoDeudor"
-                                                        styleClass="submenu-item" text="Certificado No Deudor"/>
-                                                <Button mnemonicParsing="false" onAction="#irAConsultarDeudas"
-                                                        styleClass="submenu-item" text="Consultar Deudas"/>
-                                                <Button mnemonicParsing="false" onAction="#irAConsultarReporteRendicionCuentas"
-                                                        styleClass="submenu-item" text="Consultar Rendición Cuentas"/>
-                                            </children>
-                                        </VBox>
-                                    </children>
-                                </VBox>
+                  <!-- FINANZAS -->
+                  <VBox fx:id="finanzasBox">
+                     <children>
+                        <Button fx:id="btnFinanzas" mnemonicParsing="false" onAction="#toggleFinanzas"
+                                styleClass="menu-item" text="FINANZAS">
+                           <graphic>
+                              <FontIcon iconLiteral="fa-money" iconSize="16"/>
+                           </graphic>
+                        </Button>
+                        <VBox fx:id="submenuFinanzas" managed="false" styleClass="submenu" visible="false">
+                           <children>
+                               <Button mnemonicParsing="false" onAction="#irARegistrarDeuda"
+                                       styleClass="submenu-item" text="Registrar Deuda"/>
+                               <Button mnemonicParsing="false" onAction="#irAConfiguracionFinanciera"
+                                       styleClass="submenu-item" text="Configuración Financiera"/>
+                               <Button mnemonicParsing="false" onAction="#irAGenerarReportePagosInternos"
+                                       styleClass="submenu-item" text="Consultar Pagos"/>
+                               <Button mnemonicParsing="false" onAction="#irARegistrarPagoExterno"
+                                       styleClass="submenu-item" text="Registrar Pago Externo"/>
+                               <Button mnemonicParsing="false" onAction="#irAGenerarReporteGastos"
+                                       styleClass="submenu-item" text="Generar Reporte Gastos"/>
+                               <Button mnemonicParsing="false" onAction="#irAGenerarRendicionCuentas"
+                                       styleClass="submenu-item" text="Generar Rendición Cuentas"/>
+                              <Button mnemonicParsing="false" onAction="#irAPagarDeuda"
+                                      styleClass="submenu-item" text="Pagar Deuda"/>
+                               <Button mnemonicParsing="false" onAction="#irASolicitarPagoEnCuotas"
+                                       styleClass="submenu-item" text="Solicitar Cuotas"/>
+                               <Button mnemonicParsing="false" onAction="#irAGenerarCertificadoNoDeudor"
+                                       styleClass="submenu-item" text="Certificado No Deudor"/>
+                              <Button mnemonicParsing="false" onAction="#irAConsultarDeudas"
+                                      styleClass="submenu-item" text="Consultar Deudas"/>
+                               <Button mnemonicParsing="false" onAction="#irAConsultarReporteRendicionCuentas"
+                                       styleClass="submenu-item" text="Consultar Rendición Cuentas"/>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
 
                                 <!-- INMUEBLES -->
                                 <VBox fx:id="inmueblesBox">

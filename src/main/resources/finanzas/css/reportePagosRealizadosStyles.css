@@ -19,7 +19,7 @@
 
 .text-field{
     -fx-background-color: #f3efee;
-    -fx-font-size: 12;
+    -fx-font-size: 16;
 }
 
 .text-field:focused {
