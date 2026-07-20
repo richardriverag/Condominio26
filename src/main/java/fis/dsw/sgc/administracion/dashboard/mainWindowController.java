@@ -152,6 +152,16 @@ public class mainWindowController {
     @FXML void irAGestionarHistorialIngresos(ActionEvent event) { cargarVista("/check_in/fxml/gestionarHistorialIngresos.fxml");}
     @FXML void irAEnviarAlerta(ActionEvent event)               { cargarVista("/check_in/fxml/enviarAlerta.fxml");              }
 
+    // ==================== Submenú Comunicación ====================
+
+    @FXML void irAEnviarMensaje(ActionEvent event) { cargarVista("/comunicacion/fxml/enviarMensaje.fxml");}
+    @FXML void irAPublicarAnuncio(ActionEvent event) { cargarVista("/comunicacion/fxml/publicarAnuncio.fxml");}
+    @FXML void irAConsultarHistorialComunicacion(ActionEvent event) { cargarVista("/comunicacion/fxml/consultarHistorial.fxml");}
+    @FXML void irAGestionarNotificaciones(ActionEvent event) { cargarVista("/comunicacion/fxml/gestionarNotificaciones.fxml");}
+    @FXML void irAGenerarReporteComunicacion(ActionEvent event) { cargarVista("/comunicacion/fxml/generarReporteComunicacion.fxml");}
+
+
+
     // ==================== Notificaciones ====================
 
     @FXML
