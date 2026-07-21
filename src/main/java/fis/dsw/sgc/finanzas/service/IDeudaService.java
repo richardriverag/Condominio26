@@ -1,8 +1,10 @@
 package fis.dsw.sgc.finanzas.service;
 
+import fis.dsw.sgc.finanzas.dto.CuotaDTO;
 import fis.dsw.sgc.finanzas.model.Deuda;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface IDeudaService {
 
@@ -11,7 +13,7 @@ public interface IDeudaService {
     void eliminarDeuda(Integer idDeuda);
     void pagarDeuda(Integer idDeuda, String metodoPago);
     void pagarDeudaTarjeta(Integer idDeuda, String numeroTarjeta, LocalDate fechaVencimientoTarjeta, String nombreTitularTarjeta, Integer ccv);
-    void solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir);
+    List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir);
     void consultarDeuda(String numeroCedulaResidente);
     void registrarDeudaAlicuotaMensual(String numeroCedulaResidente);
     void enviarRecordatorioDeudaPendiente(String numeroCedulaResidente);
