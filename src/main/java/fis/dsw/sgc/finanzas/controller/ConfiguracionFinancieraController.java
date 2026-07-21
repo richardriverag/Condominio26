@@ -1,6 +1,8 @@
 package fis.dsw.sgc.finanzas.controller;
 
 import fis.dsw.sgc.finanzas.dto.EntidadBancariaDTO;
+import fis.dsw.sgc.finanzas.service.ConfiguracionFinancieraService;
+import fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,6 +51,7 @@ public class ConfiguracionFinancieraController {
 
     private final ObservableList<EntidadBancariaDTO> entidades = FXCollections.observableArrayList();
     private double valorActualAlicuota = 45.00;
+    private final IConfiguracionFinancieraService configuracionFinancieraService = new ConfiguracionFinancieraService();
 
     @FXML
     public void initialize() {
@@ -85,7 +88,9 @@ public class ConfiguracionFinancieraController {
             return;
         }
 
-        valorActualAlicuota = Double.parseDouble(texto);
+        valorActualAlicuota = configuracionFinancieraService.definirValorMensualDeAlicuotas(Double.parseDouble(texto));
+        // Datos de prueba (comentado, por si se necesita reactivar la simulación local sin el Service):
+        // valorActualAlicuota = Double.parseDouble(texto);
         actualizarValorActual();
         txtNuevoValorAlicuota.clear();
         setMensaje(lblMensajeAlicuota, "El valor mensual esperado de alicuotas se registró correctamente", "message-success");
@@ -151,8 +156,10 @@ public class ConfiguracionFinancieraController {
             return;
         }
 
-        // TODO: reemplazar por servicioFinanzas.registrarEntidadBancaria(dto) cuando exista el Service/DAO
-        entidades.add(new EntidadBancariaDTO(nombreEntidad, numeroCuenta, cedulaTitular, tipoCuenta, correoTitular));
+        EntidadBancariaDTO nuevaEntidad = new EntidadBancariaDTO(nombreEntidad, numeroCuenta, cedulaTitular, tipoCuenta, correoTitular);
+        entidades.add(configuracionFinancieraService.registrarEntidadBancaria(nuevaEntidad));
+        // Datos de prueba (comentado, por si se necesita reactivar la simulación local sin el Service):
+        // entidades.add(new EntidadBancariaDTO(nombreEntidad, numeroCuenta, cedulaTitular, tipoCuenta, correoTitular));
         setMensaje(lblMensajeEntidad, "Entidad bancaria registrada correctamente", "message-success");
         limpiarFormularioEntidad(null);
     }

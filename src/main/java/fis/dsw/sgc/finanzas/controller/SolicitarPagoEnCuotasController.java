@@ -1,5 +1,6 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.finanzas.dto.CuotaDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,12 +37,12 @@ public class SolicitarPagoEnCuotasController {
     @FXML private Button btnSolicitar;
     @FXML private Label lblMensaje;
 
-    @FXML private TableView<CuotaFila> tablaCuotas;
-    @FXML private TableColumn<CuotaFila, String> colCuota;
-    @FXML private TableColumn<CuotaFila, String> colFechaMax;
-    @FXML private TableColumn<CuotaFila, String> colValor;
+    @FXML private TableView<CuotaDTO> tablaCuotas;
+    @FXML private TableColumn<CuotaDTO, String> colCuota;
+    @FXML private TableColumn<CuotaDTO, String> colFechaMax;
+    @FXML private TableColumn<CuotaDTO, String> colValor;
 
-    private final ObservableList<CuotaFila> cuotas = FXCollections.observableArrayList();
+    private final ObservableList<CuotaDTO> cuotas = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -85,8 +86,9 @@ public class SolicitarPagoEnCuotasController {
             return;
         }
 
-        // Caso de uso: el Sistema consulta si el Residente tiene deudas en estado "EN MORA"
-        // TODO: reemplazar por servicioFinanzas.tieneDeudasEnMora(idDeuda) cuando exista el Service/DAO
+        // TODO: reemplazar todo este bloque de simulación por:
+        // deudaService.solicitarPagoEnCuotas(Integer.valueOf(idDeuda), numeroMeses);
+        // (la validación de mora y el cálculo/generación de las cuotas los hace el Service, no el Controller)
         if (idDeuda.equalsIgnoreCase(ID_DEUDA_RESIDENTE_EN_MORA)) {
             setMensaje("No puede ser beneficiario a este beneficio porque tiene deudas en estado EN MORA", "message-error");
             return;
@@ -95,7 +97,7 @@ public class SolicitarPagoEnCuotasController {
         double valorCuota = VALOR_DEUDA_SIMULADA / numeroMeses;
         LocalDate hoy = LocalDate.now();
         for (int i = 1; i <= numeroMeses; i++) {
-            cuotas.add(new CuotaFila(
+            cuotas.add(new CuotaDTO(
                     "Cuota " + i + "/" + numeroMeses,
                     hoy.plusMonths(i).format(FMT),
                     String.format(Locale.US, "$%.2f", valorCuota)
@@ -131,30 +133,5 @@ public class SolicitarPagoEnCuotasController {
         }
         lblMensaje.getStyleClass().add(estilo);
         lblMensaje.setText(texto);
-    }
-
-    // Fila de la tabla de cuotas generadas
-    public static class CuotaFila {
-        private final String cuota;
-        private final String fechaMaximaPago;
-        private final String valor;
-
-        public CuotaFila(String cuota, String fechaMaximaPago, String valor) {
-            this.cuota = cuota;
-            this.fechaMaximaPago = fechaMaximaPago;
-            this.valor = valor;
-        }
-
-        public String getCuota() {
-            return cuota;
-        }
-
-        public String getFechaMaximaPago() {
-            return fechaMaximaPago;
-        }
-
-        public String getValor() {
-            return valor;
-        }
     }
 }
