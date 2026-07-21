@@ -1,9 +1,14 @@
 package fis.dsw.sgc.finanzas.service;
 
 import fis.dsw.sgc.finanzas.dao.IDeudaDAO;
+import fis.dsw.sgc.finanzas.dto.CuotaDTO;
 import fis.dsw.sgc.finanzas.model.Deuda;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class DeudaService implements IDeudaService {
     private final IDeudaDAO deudaDAO;
@@ -12,6 +17,12 @@ public class DeudaService implements IDeudaService {
     public DeudaService(IDeudaDAO deudaDAO, IDeudaFactory deudaFactory) {
         this.deudaDAO = deudaDAO;
         this.deudaFactory = deudaFactory;
+    }
+
+    // Constructor de prueba: todavía no existe una implementación real de IDeudaDAO,
+    // por eso se permite instanciar el Service sin DAO mientras se usan datos quemados.
+    public DeudaService() {
+        this(null, null);
     }
 
     @Override
@@ -45,8 +56,26 @@ public class DeudaService implements IDeudaService {
     }
 
     @Override
-    public void solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir) {
+    public List<CuotaDTO> solicitarPagoEnCuotas(Integer idDeuda, Integer numeroMesesADiferir) {
+        // TODO: reemplazar por la orquestación real (Model -> DAO) cuando exista el DAO de deudas.
+        // Datos quemados de prueba: simula la validación de mora y la generación de cuotas.
+        if (idDeuda != null && idDeuda == 2) {
+            throw new IllegalStateException("No puede ser beneficiario a este beneficio porque tiene deudas en estado EN MORA");
+        }
 
+        double valorDeudaSimulada = 90.00;
+        double valorCuota = valorDeudaSimulada / numeroMesesADiferir;
+        LocalDate hoy = LocalDate.now();
+
+        List<CuotaDTO> cuotas = new ArrayList<>();
+        for (int i = 1; i <= numeroMesesADiferir; i++) {
+            cuotas.add(new CuotaDTO(
+                    "Cuota " + i + "/" + numeroMesesADiferir,
+                    hoy.plusMonths(i).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    String.format(Locale.US, "$%.2f", valorCuota)
+            ));
+        }
+        return cuotas;
     }
 
     @Override
