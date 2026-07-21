@@ -21,8 +21,10 @@ import java.util.regex.Pattern;
 public class ConfiguracionFinancieraController {
 
     private static final Pattern VALOR_VALIDO = Pattern.compile("\\d+(\\.\\d{1,2})?");
-    private static final Pattern CEDULA_VALIDA = Pattern.compile("\\d{5,13}");
-    private static final Pattern CORREO_VALIDO = Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
+    private static final Pattern CEDULA_VALIDA = Pattern.compile("\\d{10}");
+    private static final Pattern NOMBRE_ENTIDAD_VALIDO = Pattern.compile("[a-zA-ZñÑ ]{1,100}");
+    private static final Pattern NUMERO_CUENTA_VALIDO = Pattern.compile("\\d+");
+    private static final Pattern CORREO_VALIDO = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     @FXML private Label lblValorActualAlicuota;
     @FXML private TextField txtNuevoValorAlicuota;
@@ -78,7 +80,7 @@ public class ConfiguracionFinancieraController {
 
         if (texto.isEmpty() || !VALOR_VALIDO.matcher(texto).matches() || Double.parseDouble(texto) <= 0) {
             setMensaje(lblMensajeAlicuota,
-                    "El valor mensual esperado de alicuotas ingresado no es válido, asegúrese que haya ingresado un número mayor a 0 con hasta 2 cifras decimales",
+                    "El valor mensual esperado de alicuotas ingresado no es válido, asegúrese que haya ingresado un número mayor a 0 con 2 decimales",
                     "message-error");
             return;
         }
@@ -103,13 +105,42 @@ public class ConfiguracionFinancieraController {
         String tipoCuenta = cbTipoCuenta.getValue();
         String correoTitular = textoDe(txtCorreoTitular);
 
-        if (nombreEntidad.isEmpty() || numeroCuenta.isEmpty() || cedulaTitular.isEmpty()
-                || tipoCuenta == null || correoTitular.isEmpty()) {
-            setMensaje(lblMensajeEntidad, "La información de la entidad bancaria no es válida", "message-error");
+        if (nombreEntidad.isEmpty()) {
+            setMensaje(lblMensajeEntidad, "Debe ingresar el nombre de la entidad bancaria", "message-error");
             return;
         }
-        if (!CEDULA_VALIDA.matcher(cedulaTitular).matches() || !CORREO_VALIDO.matcher(correoTitular).matches()) {
-            setMensaje(lblMensajeEntidad, "La información de la entidad bancaria no es válida", "message-error");
+        if (!NOMBRE_ENTIDAD_VALIDO.matcher(nombreEntidad).matches()) {
+            setMensaje(lblMensajeEntidad,
+                    "El nombre de la entidad bancaria no es válido, ingrese hasta 100 caracteres usando solo letras",
+                    "message-error");
+            return;
+        }
+        if (numeroCuenta.isEmpty()) {
+            setMensaje(lblMensajeEntidad, "Debe ingresar el número de cuenta de la entidad bancaria", "message-error");
+            return;
+        }
+        if (!NUMERO_CUENTA_VALIDO.matcher(numeroCuenta).matches()) {
+            setMensaje(lblMensajeEntidad, "El número de cuenta no es válido, ingrese solo números", "message-error");
+            return;
+        }
+        if (cedulaTitular.isEmpty()) {
+            setMensaje(lblMensajeEntidad, "Debe ingresar la cédula del titular de la cuenta", "message-error");
+            return;
+        }
+        if (!CEDULA_VALIDA.matcher(cedulaTitular).matches()) {
+            setMensaje(lblMensajeEntidad, "La cédula del titular no es válida, ingrese 10 dígitos", "message-error");
+            return;
+        }
+        if (tipoCuenta == null) {
+            setMensaje(lblMensajeEntidad, "Debe seleccionar el tipo de cuenta", "message-error");
+            return;
+        }
+        if (correoTitular.isEmpty()) {
+            setMensaje(lblMensajeEntidad, "Debe ingresar el correo electrónico del titular de la cuenta", "message-error");
+            return;
+        }
+        if (!CORREO_VALIDO.matcher(correoTitular).matches()) {
+            setMensaje(lblMensajeEntidad, "El correo electrónico del titular no es válido", "message-error");
             return;
         }
 

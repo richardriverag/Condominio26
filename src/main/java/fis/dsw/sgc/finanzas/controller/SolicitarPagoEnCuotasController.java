@@ -21,18 +21,14 @@ import java.util.regex.Pattern;
 public class SolicitarPagoEnCuotasController {
 
     private static final Pattern MESES_VALIDO = Pattern.compile("\\d+");
-    private static final Pattern CEDULA_VALIDA = Pattern.compile("\\d{10}");
     private static final int MESES_MINIMOS = 3;
+    private static final int MESES_MAXIMOS = 11;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     // Simulación mientras no exista el Service/DAO de deudas
     private static final double VALOR_DEUDA_SIMULADA = 90.00;
-    private static final String CEDULA_CON_DEUDAS_EN_MORA = "1111111111";
-    private static final String CEDULA_CON_DEUDAS_PENDIENTES = "2222222222";
-    private static final String ID_DEUDA_INEXISTENTE = "DEU-404";
+    private static final String ID_DEUDA_RESIDENTE_EN_MORA = "DEU-002";
 
-    @FXML private TextField txtCedula;
-    @FXML private Button btnConsultarDeudas;
     @FXML private TextField txtIdDeuda;
     @FXML private TextField txtNumeroMeses;
     @FXML private Button btnCalcular;
@@ -46,7 +42,6 @@ public class SolicitarPagoEnCuotasController {
     @FXML private TableColumn<CuotaFila, String> colValor;
 
     private final ObservableList<CuotaFila> cuotas = FXCollections.observableArrayList();
-    private Label placeholderTabla;
 
     @FXML
     public void initialize() {
@@ -56,7 +51,7 @@ public class SolicitarPagoEnCuotasController {
         tablaCuotas.setItems(cuotas);
         tablaCuotas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-        placeholderTabla = new Label("Aún no se ha solicitado el diferimiento de una deuda.");
+        Label placeholderTabla = new Label("Aún no se ha solicitado el diferimiento de una deuda.");
         placeholderTabla.getStyleClass().add("module-subtitle");
         placeholderTabla.setWrapText(true);
         placeholderTabla.setAlignment(Pos.CENTER);
@@ -64,58 +59,19 @@ public class SolicitarPagoEnCuotasController {
         tablaCuotas.setPlaceholder(placeholderTabla);
 
         btnSolicitar.setDisable(true);
-        bloquearDatosDeuda();
-        setMensaje("Ingrese su número de cédula y pulse \"Consultar deudas\".", "message-info");
-    }
-
-    @FXML
-    void consultarDeudas(ActionEvent event) {
-        cuotas.clear();
-        btnSolicitar.setDisable(true);
-        bloquearDatosDeuda();
-        String cedula = texto(txtCedula);
-
-        if (cedula.isEmpty()) {
-            setMensaje("Debe ingresar el número de cédula del residente.", "message-error");
-            return;
-        }
-        if (!CEDULA_VALIDA.matcher(cedula).matches()) {
-            setMensaje("Cédula inválida. Ingrese 10 dígitos.", "message-error");
-            return;
-        }
-
-        // Caso de uso compartido consultarDeuda: el Sistema consulta las deudas del residente
-        // TODO: reemplazar por servicioFinanzas.consultarDeudasPendientes(residente) cuando exista el Service/DAO
-        // Solo las deudas en estado MORA bloquean el diferimiento (escenario alternativo 2)
-        if (cedula.equals(CEDULA_CON_DEUDAS_EN_MORA)) {
-            setMensaje("Tiene deudas pendientes de pago, no puede ser beneficiario para diferir una deuda hasta que pague todos sus valores",
-                    "message-error");
-            return;
-        }
-
-        desbloquearDatosDeuda();
-        if (cedula.equals(CEDULA_CON_DEUDAS_PENDIENTES)) {
-            setMensaje("El residente tiene deudas pendientes, pero ninguna en mora. Ingrese el ID de la deuda y el número de meses a diferirla.",
-                    "message-success");
-        } else {
-            setMensaje("El residente no tiene deudas pendientes. Ingrese el ID de la deuda y el número de meses a diferirla.",
-                    "message-success");
-        }
+        setMensaje("Ingrese el ID de la deuda y el número de meses a diferirla.", "message-info");
     }
 
     @FXML
     void calcular(ActionEvent event) {
         cuotas.clear();
         btnSolicitar.setDisable(true);
+
         String idDeuda = texto(txtIdDeuda);
         String meses = texto(txtNumeroMeses);
 
         if (idDeuda.isEmpty()) {
             setMensaje("Debe ingresar el ID de la deuda que desea diferir.", "message-error");
-            return;
-        }
-        if (idDeuda.equalsIgnoreCase(ID_DEUDA_INEXISTENTE)) {
-            setMensaje("No existe una deuda con el identificador proporcionado.", "message-error");
             return;
         }
         if (meses.isEmpty() || !MESES_VALIDO.matcher(meses).matches()) {
@@ -124,8 +80,15 @@ public class SolicitarPagoEnCuotasController {
         }
 
         int numeroMeses = Integer.parseInt(meses);
-        if (numeroMeses <= 2) {
-            setMensaje("El numero de meses a diferir la deuda debe ser de almenos 3", "message-error");
+        if (numeroMeses <= MESES_MINIMOS - 1 || numeroMeses >= MESES_MAXIMOS + 1) {
+            setMensaje("El numero de meses a diferir la deuda debe ser de almenos 3 y como máximo 12", "message-error");
+            return;
+        }
+
+        // Caso de uso: el Sistema consulta si el Residente tiene deudas en estado "EN MORA"
+        // TODO: reemplazar por servicioFinanzas.tieneDeudasEnMora(idDeuda) cuando exista el Service/DAO
+        if (idDeuda.equalsIgnoreCase(ID_DEUDA_RESIDENTE_EN_MORA)) {
+            setMensaje("No puede ser beneficiario a este beneficio porque tiene deudas en estado EN MORA", "message-error");
             return;
         }
 
@@ -150,27 +113,11 @@ public class SolicitarPagoEnCuotasController {
 
     @FXML
     void limpiar(ActionEvent event) {
-        txtCedula.clear();
         txtIdDeuda.clear();
         txtNumeroMeses.clear();
         cuotas.clear();
-        bloquearDatosDeuda();
         btnSolicitar.setDisable(true);
-        setMensaje("Ingrese su número de cédula y pulse \"Consultar deudas\".", "message-info");
-    }
-
-    private void bloquearDatosDeuda() {
-        txtIdDeuda.clear();
-        txtNumeroMeses.clear();
-        txtIdDeuda.setDisable(true);
-        txtNumeroMeses.setDisable(true);
-        btnCalcular.setDisable(true);
-    }
-
-    private void desbloquearDatosDeuda() {
-        txtIdDeuda.setDisable(false);
-        txtNumeroMeses.setDisable(false);
-        btnCalcular.setDisable(false);
+        setMensaje("Ingrese el ID de la deuda y el número de meses a diferirla.", "message-info");
     }
 
     private String texto(TextField campo) {
