@@ -18,8 +18,11 @@ import java.util.List;
 
 public class RegistroEntradaDAO implements IRegistroEntradaDAO {
 
-    // Constructor explícito requerido para instanciación manual desde Main (DI manual del jefe de proyecto)
+    // Constructor por defecto: instanciación manual (respaldo si no hay inyección)
     public RegistroEntradaDAO() {}
+
+    // Constructor con DI: recibe la conexión inyectada por el líder del proyecto
+    public RegistroEntradaDAO(Connection conn) {}
 
     @Override
     public int guardar(RegistroEntrada registro) {
