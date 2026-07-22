@@ -37,6 +37,150 @@ INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso) VALUES
 (4,3),(4,9),
 (5,1),(5,3),(5,6),(5,7),(5,8),(5,10);
 
+-- Permisos de Finanzas por botón/vista (matriz enviada por el módulo de Finanzas)
+INSERT OR IGNORE INTO permiso (nombre, recurso, accion, descripcion) VALUES
+('FINANZAS_VER_DEUDAS', 'FINANZAS', 'VER', 'Ver deudas'),
+('FINANZAS_VER_PAGOS', 'FINANZAS', 'VER', 'Ver pagos'),
+('FINANZAS_VER_RENDICION_CUENTAS', 'FINANZAS', 'VER', 'Ver rendición de cuentas'),
+('FINANZAS_BTN_REGISTRAR_DEUDA', 'FINANZAS', 'BTN', 'Botón registrar deuda'),
+('FINANZAS_BTN_ELIMINAR_DEUDA', 'FINANZAS', 'BTN', 'Botón eliminar deuda'),
+('FINANZAS_BTN_MODIFICAR_FECHA_DEUDA', 'FINANZAS', 'BTN', 'Botón modificar fecha de deuda'),
+('FINANZAS_BTN_REGISTRAR_PAGO', 'FINANZAS', 'BTN', 'Botón registrar pago'),
+('FINANZAS_BTN_DEFINIR_ALICUOTA', 'FINANZAS', 'BTN', 'Botón definir alícuota'),
+('FINANZAS_BTN_REGISTRAR_BANCO', 'FINANZAS', 'BTN', 'Botón registrar entidad bancaria'),
+('FINANZAS_BTN_REGISTRAR_GASTO', 'FINANZAS', 'BTN', 'Botón registrar gasto'),
+('FINANZAS_BTN_GENERAR_REPORTE_PAGOS', 'FINANZAS', 'BTN', 'Botón generar reporte de pagos'),
+('FINANZAS_BTN_GENERAR_REPORTE_GASTOS', 'FINANZAS', 'BTN', 'Botón generar reporte de gastos'),
+('FINANZAS_BTN_GENERAR_RENDICION_CUENTAS', 'FINANZAS', 'BTN', 'Botón generar rendición de cuentas'),
+('FINANZAS_BTN_PAGAR_DEUDA', 'FINANZAS', 'BTN', 'Botón pagar deuda'),
+('FINANZAS_BTN_SOLICITAR_CUOTAS', 'FINANZAS', 'BTN', 'Botón solicitar cuotas'),
+('FINANZAS_BTN_GENERAR_CERTIFICADO', 'FINANZAS', 'BTN', 'Botón generar certificado de no deudor');
+
+-- ADMINISTRADOR: acceso total, todos los permisos de Finanzas
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'ADMINISTRADOR'), id_permiso
+FROM permiso WHERE nombre IN (
+    'FINANZAS_VER_DEUDAS','FINANZAS_VER_PAGOS','FINANZAS_VER_RENDICION_CUENTAS',
+    'FINANZAS_BTN_REGISTRAR_DEUDA','FINANZAS_BTN_ELIMINAR_DEUDA','FINANZAS_BTN_MODIFICAR_FECHA_DEUDA',
+    'FINANZAS_BTN_REGISTRAR_PAGO','FINANZAS_BTN_DEFINIR_ALICUOTA','FINANZAS_BTN_REGISTRAR_BANCO',
+    'FINANZAS_BTN_REGISTRAR_GASTO','FINANZAS_BTN_GENERAR_REPORTE_PAGOS','FINANZAS_BTN_GENERAR_REPORTE_GASTOS',
+    'FINANZAS_BTN_GENERAR_RENDICION_CUENTAS','FINANZAS_BTN_PAGAR_DEUDA','FINANZAS_BTN_SOLICITAR_CUOTAS',
+    'FINANZAS_BTN_GENERAR_CERTIFICADO'
+);
+
+-- PRESIDENTE: gestiona finanzas generales, pagos externos y reportes
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PRESIDENTE'), id_permiso
+FROM permiso WHERE nombre IN (
+    'FINANZAS_VER_DEUDAS','FINANZAS_VER_PAGOS','FINANZAS_VER_RENDICION_CUENTAS',
+    'FINANZAS_BTN_REGISTRAR_DEUDA','FINANZAS_BTN_ELIMINAR_DEUDA','FINANZAS_BTN_MODIFICAR_FECHA_DEUDA',
+    'FINANZAS_BTN_REGISTRAR_PAGO','FINANZAS_BTN_DEFINIR_ALICUOTA','FINANZAS_BTN_REGISTRAR_BANCO',
+    'FINANZAS_BTN_REGISTRAR_GASTO','FINANZAS_BTN_GENERAR_REPORTE_PAGOS','FINANZAS_BTN_GENERAR_REPORTE_GASTOS',
+    'FINANZAS_BTN_GENERAR_RENDICION_CUENTAS'
+);
+
+-- RESIDENTE: solo sus propias deudas y consultas
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'RESIDENTE'), id_permiso
+FROM permiso WHERE nombre IN (
+    'FINANZAS_VER_DEUDAS','FINANZAS_VER_PAGOS','FINANZAS_VER_RENDICION_CUENTAS',
+    'FINANZAS_BTN_PAGAR_DEUDA','FINANZAS_BTN_SOLICITAR_CUOTAS','FINANZAS_BTN_GENERAR_CERTIFICADO'
+);
+
+-- PROPIETARIO: mismos permisos que RESIDENTE (confirmado por el módulo de Finanzas)
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PROPIETARIO'), id_permiso
+FROM permiso WHERE nombre IN (
+    'FINANZAS_VER_DEUDAS','FINANZAS_VER_PAGOS','FINANZAS_VER_RENDICION_CUENTAS',
+    'FINANZAS_BTN_PAGAR_DEUDA','FINANZAS_BTN_SOLICITAR_CUOTAS','FINANZAS_BTN_GENERAR_CERTIFICADO'
+);
+
+-- Permisos de Check-in (matriz enviada por el módulo de Check-in)
+INSERT OR IGNORE INTO permiso (nombre, recurso, accion, descripcion) VALUES
+('GRE_PROGRAMAR_VISITA', 'CHECKIN', 'PROGRAMAR', 'Programar visita'),
+('GRE_ENVIAR_ALERTA', 'CHECKIN', 'ENVIAR', 'Enviar alerta de seguridad'),
+('GRE_GESTIONAR_HISTORIAL', 'CHECKIN', 'GESTIONAR', 'Gestionar historial de ingresos'),
+('GRE_REGISTRAR_ENTRADA', 'CHECKIN', 'REGISTRAR', 'Registrar entrada de residente'),
+('GRE_REGISTRAR_ENTRADA_EXTERNA', 'CHECKIN', 'REGISTRAR', 'Registrar entrada externa/visitante');
+
+-- ADMINISTRADOR: acceso total, todos los permisos de Check-in
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'ADMINISTRADOR'), id_permiso
+FROM permiso WHERE nombre IN (
+    'GRE_PROGRAMAR_VISITA','GRE_ENVIAR_ALERTA','GRE_GESTIONAR_HISTORIAL',
+    'GRE_REGISTRAR_ENTRADA','GRE_REGISTRAR_ENTRADA_EXTERNA'
+);
+
+-- PRESIDENTE: supervisa acceso, coordina visitas, emite alertas, revisa historial
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PRESIDENTE'), id_permiso
+FROM permiso WHERE nombre IN (
+    'GRE_PROGRAMAR_VISITA','GRE_ENVIAR_ALERTA','GRE_GESTIONAR_HISTORIAL'
+);
+
+-- RESIDENTE: solo programa visitas de sus invitados
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'RESIDENTE'), id_permiso
+FROM permiso WHERE nombre IN ('GRE_PROGRAMAR_VISITA');
+
+-- PERSONAL_SEGURIDAD: opera el registro físico de entradas y emite alertas
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PERSONAL_SEGURIDAD'), id_permiso
+FROM permiso WHERE nombre IN (
+    'GRE_REGISTRAR_ENTRADA','GRE_REGISTRAR_ENTRADA_EXTERNA','GRE_ENVIAR_ALERTA'
+);
+
+-- Permisos de Inmuebles (matriz enviada por el módulo de Inmuebles)
+INSERT OR IGNORE INTO permiso (nombre, recurso, accion, descripcion) VALUES
+('INMUEBLES_VER_INMUEBLES', 'INMUEBLES', 'VER', 'Ver inmuebles'),
+('INMUEBLES_BTN_REGISTRAR_INMUEBLE', 'INMUEBLES', 'BTN', 'Botón registrar inmueble'),
+('INMUEBLES_BTN_EDITAR_INMUEBLE', 'INMUEBLES', 'BTN', 'Botón editar inmueble'),
+('INMUEBLES_VER_PROPIETARIO', 'INMUEBLES', 'VER', 'Ver propietario del inmueble'),
+('INMUEBLES_BTN_ASIGNAR_PROPIETARIO', 'INMUEBLES', 'BTN', 'Botón asignar propietario'),
+('INMUEBLES_VER_CASOS_FORTUITOS', 'INMUEBLES', 'VER', 'Ver casos fortuitos'),
+('INMUEBLES_BTN_REGISTRAR_CASO_FORTUITO', 'INMUEBLES', 'BTN', 'Botón registrar caso fortuito'),
+('INMUEBLES_VER_DIMENSIONES', 'INMUEBLES', 'VER', 'Ver dimensiones del inmueble');
+
+-- ADMINISTRADOR: acceso total, todos los permisos de Inmuebles
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'ADMINISTRADOR'), id_permiso
+FROM permiso WHERE nombre IN (
+    'INMUEBLES_VER_INMUEBLES','INMUEBLES_BTN_REGISTRAR_INMUEBLE','INMUEBLES_BTN_EDITAR_INMUEBLE',
+    'INMUEBLES_VER_PROPIETARIO','INMUEBLES_BTN_ASIGNAR_PROPIETARIO','INMUEBLES_VER_CASOS_FORTUITOS',
+    'INMUEBLES_BTN_REGISTRAR_CASO_FORTUITO','INMUEBLES_VER_DIMENSIONES'
+);
+
+-- PRESIDENTE: supervisa información de inmuebles sin gestionar la data operativa
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PRESIDENTE'), id_permiso
+FROM permiso WHERE nombre IN (
+    'INMUEBLES_VER_INMUEBLES','INMUEBLES_VER_PROPIETARIO','INMUEBLES_VER_CASOS_FORTUITOS',
+    'INMUEBLES_BTN_REGISTRAR_CASO_FORTUITO','INMUEBLES_VER_DIMENSIONES'
+);
+
+-- PROPIETARIO: solo gestiona información de su propio inmueble
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PROPIETARIO'), id_permiso
+FROM permiso WHERE nombre IN (
+    'INMUEBLES_VER_INMUEBLES','INMUEBLES_VER_PROPIETARIO','INMUEBLES_VER_CASOS_FORTUITOS',
+    'INMUEBLES_BTN_REGISTRAR_CASO_FORTUITO','INMUEBLES_VER_DIMENSIONES'
+);
+
+-- RESIDENTE: solo consulta y reporta sobre la unidad donde habita
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'RESIDENTE'), id_permiso
+FROM permiso WHERE nombre IN (
+    'INMUEBLES_VER_INMUEBLES','INMUEBLES_VER_CASOS_FORTUITOS',
+    'INMUEBLES_BTN_REGISTRAR_CASO_FORTUITO','INMUEBLES_VER_DIMENSIONES'
+);
+
+-- PERSONAL_SEGURIDAD: solo identifica unidades y reporta incidentes
+INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso)
+SELECT (SELECT id_rol FROM rol WHERE nombre = 'PERSONAL_SEGURIDAD'), id_permiso
+FROM permiso WHERE nombre IN (
+    'INMUEBLES_VER_INMUEBLES','INMUEBLES_BTN_REGISTRAR_CASO_FORTUITO'
+);
+
 INSERT OR IGNORE INTO usuario
 (id_usuario, numero_documento, nombres, apellidos, correo, telefono, estado, fecha_registro)
 VALUES

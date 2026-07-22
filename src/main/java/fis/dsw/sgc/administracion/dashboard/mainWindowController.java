@@ -4,9 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Collectors;
 
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
+import fis.dsw.sgc.check_in.service.IAlertaSeguridadService;
+import fis.dsw.sgc.check_in.service.ICheckInService;
+import fis.dsw.sgc.check_in.service.IProgramVisitaService;
+import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
+import fis.dsw.sgc.finanzas.controller.*;
+import fis.dsw.sgc.finanzas.service.IGastoService;
+import fis.dsw.sgc.finanzas.service.IPagoService;
+import fis.dsw.sgc.finanzas.service.IReportesService;
+import fis.dsw.sgc.reservas.service.IServicioReservas;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,6 +57,119 @@ public class mainWindowController {
     private static final String CLASE_ACTIVO = "active";
 
     // Se eliminaron las variables que restringían a un solo menú activo a la vez
+
+    private final fis.dsw.sgc.finanzas.service.IPagoService pagoService;
+    private final fis.dsw.sgc.finanzas.service.IGastoService gastoService;
+    private final fis.dsw.sgc.finanzas.service.IDeudaService deudaService;
+    private final fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService;
+    private final fis.dsw.sgc.finanzas.service.IReportesService reportesService;
+    private final fis.dsw.sgc.check_in.service.ICheckInService checkInService;
+    private final fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService;
+    private final fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService;
+    private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas;
+    private final fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService;
+    private final fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService;
+    private final fis.dsw.sgc.administracion.service.IGestionCuentasService gestionCuentasService;
+
+    public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IDeudaService deudaService, fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService, fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService, fis.dsw.sgc.administracion.service.IGestionCuentasService gestionCuentasService) {
+        this.pagoService = pagoService;
+        this.gastoService = gastoService;
+        this.deudaService = deudaService;
+        this.financieraService = financieraService;
+        this.reportesService = reportesService;
+        this.checkInService = checkInService;
+        this.alertaSeguridadService = alertaSeguridadService;
+        this.programVisitaService = programVisitaService;
+        this.servicioReservas = servicioReservas;
+        this.comunicacionService = comunicacionService;
+        this.usuariosService = usuariosService;
+        this.gestionCuentasService = gestionCuentasService;
+    }
+
+    // Constructor sin argumentos: red de seguridad si la inyección manual de
+    // Main.java no llega a tiempo. Arma exactamente la misma cadena de DAOs
+    // y services que ya está escrita en Main.java, para que el dashboard
+    // nunca quede sin poder cargarse.
+    public mainWindowController() {
+        this(construirConDependenciasPorDefecto());
+    }
+
+    public mainWindowController(Object[] dependenciasPorDefecto) {
+        this(
+                (fis.dsw.sgc.finanzas.service.IPagoService) dependenciasPorDefecto[0],
+                (fis.dsw.sgc.finanzas.service.IGastoService) dependenciasPorDefecto[1],
+                (fis.dsw.sgc.finanzas.service.IDeudaService) dependenciasPorDefecto[2],
+                (fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService) dependenciasPorDefecto[3],
+                (fis.dsw.sgc.finanzas.service.IReportesService) dependenciasPorDefecto[4],
+                (fis.dsw.sgc.check_in.service.ICheckInService) dependenciasPorDefecto[5],
+                (fis.dsw.sgc.check_in.service.IAlertaSeguridadService) dependenciasPorDefecto[6],
+                (fis.dsw.sgc.check_in.service.IProgramVisitaService) dependenciasPorDefecto[7],
+                (fis.dsw.sgc.reservas.service.IServicioReservas) dependenciasPorDefecto[8],
+                (fis.dsw.sgc.comunicacion.service.IComunicacionService) dependenciasPorDefecto[9],
+                (fis.dsw.sgc.administracion.service.IGestionUsuariosAPI) dependenciasPorDefecto[10],
+                (fis.dsw.sgc.administracion.service.IGestionCuentasService) dependenciasPorDefecto[11]
+        );
+    }
+
+
+    private static Object[] construirConDependenciasPorDefecto() {
+        fis.dsw.sgc.finanzas.service.IDeudaFactory deudaFactory = new fis.dsw.sgc.finanzas.service.DeudaFactoryImpl();
+        fis.dsw.sgc.finanzas.service.GastoFactoryImpl gastoFactory = new fis.dsw.sgc.finanzas.service.GastoFactoryImpl();
+        fis.dsw.sgc.finanzas.service.IPagoFactory pagoFactory = new fis.dsw.sgc.finanzas.service.PagoFactoryImpl();
+
+        fis.dsw.sgc.finanzas.dao.IDeudaDAO deudaDAO = new fis.dsw.sgc.finanzas.dao.DeudaDAOImpl();
+        fis.dsw.sgc.finanzas.dao.IPagoDAO pagoDAO = new fis.dsw.sgc.finanzas.dao.PagoDAOImpl();
+        fis.dsw.sgc.finanzas.dao.IGastoDAO gastoDAO = new fis.dsw.sgc.finanzas.dao.GastoDAOImpl();
+        fis.dsw.sgc.finanzas.dao.IReportesDAO reportesDAO = new fis.dsw.sgc.finanzas.dao.ReportesDAOImpl();
+
+        fis.dsw.sgc.inmuebles.dao.IInmuebleDAO inmuebleDAO = new fis.dsw.sgc.inmuebles.dao.InmuebleDAOMySQL();
+        fis.dsw.sgc.inmuebles.dao.IEspacioReservableDAO espacioReservableDAO = new fis.dsw.sgc.inmuebles.dao.EspacioReservableDAO();
+        fis.dsw.sgc.inmuebles.dao.ICasoFortuitoDAO casoFortuitoDAO = new fis.dsw.sgc.inmuebles.dao.CasoFortuitoDAOMySQL();
+
+        fis.dsw.sgc.check_in.dao.IAlertaSeguridadDAO alertaSeguridadDAO = new fis.dsw.sgc.check_in.dao.AlertaSeguridadDAO();
+        fis.dsw.sgc.check_in.dao.IProgramacionVisitaDAO programacionVisitaDAO = new fis.dsw.sgc.check_in.dao.ProgramacionVisitaDAO();
+        fis.dsw.sgc.check_in.dao.IRegistroEntradaDAO registroEntradaDAO = new fis.dsw.sgc.check_in.dao.RegistroEntradaDAO();
+
+        fis.dsw.sgc.reservas.dao.IReservaDAO reservaDAO = new fis.dsw.sgc.reservas.dao.ReservaDAOSQLite();
+        fis.dsw.sgc.reservas.dao.IObservacionReservaDAO observacionReservaDAO = new fis.dsw.sgc.reservas.dao.ObservacionReservaDAOSQLite();
+
+        fis.dsw.sgc.administracion.dao.ICuentaDAO cuentaDAO = new fis.dsw.sgc.administracion.dao.CuentaDAOMySQL();
+        fis.dsw.sgc.administracion.dao.IPermisoDAO permisoDAO = new fis.dsw.sgc.administracion.dao.PermisoDAOMySQL();
+        fis.dsw.sgc.administracion.dao.IRolDAO rolDAO = new fis.dsw.sgc.administracion.dao.RolDAOMySQL();
+        fis.dsw.sgc.administracion.dao.IUsuarioDAO usuarioDAO = new fis.dsw.sgc.administracion.dao.UsuarioDAOMySQL();
+        fis.dsw.sgc.administracion.dao.ITokenRecuperacionDAO tokenDAO = new fis.dsw.sgc.administracion.dao.TokenRecuperacionDAOMySQL();
+
+        fis.dsw.sgc.comunicacion.dao.IComunicacionDAO comunicacionDAO = new fis.dsw.sgc.comunicacion.dao.ComunicacionDAOSQLite();
+
+        fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService =
+                new fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl(usuarioDAO, cuentaDAO, permisoDAO);
+        fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService =
+                new fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl(usuarioDAO, cuentaDAO, rolDAO, permisoDAO, tokenDAO);
+        fis.dsw.sgc.inmuebles.service.IInmueblesService inmueblesService =
+                new fis.dsw.sgc.inmuebles.service.InmueblesServiceImpl(inmuebleDAO, casoFortuitoDAO, espacioReservableDAO);
+        fis.dsw.sgc.finanzas.service.IDeudaService deudaService =
+                new fis.dsw.sgc.finanzas.service.DeudaServiceImpl(deudaFactory, deudaDAO, inmueblesService, usuariosService);
+        fis.dsw.sgc.finanzas.service.IFachadaParaReservas fachaReservas =
+                new fis.dsw.sgc.finanzas.service.FachadaParaReservasImpl(deudaService);
+
+        fis.dsw.sgc.finanzas.service.IPagoService pagoService = new fis.dsw.sgc.finanzas.service.PagoServiceImpl(pagoFactory, pagoDAO, deudaDAO);
+        fis.dsw.sgc.finanzas.service.IGastoService gastoService = new fis.dsw.sgc.finanzas.service.GastoServiceImpl(gastoDAO);
+        fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService = new fis.dsw.sgc.finanzas.service.ConfiguracionFinancieraService();
+        fis.dsw.sgc.finanzas.service.IReportesService reportesService = new fis.dsw.sgc.finanzas.service.ReportesServiceImpl(reportesDAO, usuariosService);
+        fis.dsw.sgc.check_in.service.ICheckInService checkInService = new fis.dsw.sgc.check_in.service.CheckInServiceImpl(registroEntradaDAO, programacionVisitaDAO);
+        fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService = new fis.dsw.sgc.check_in.service.AlertaSeguridadServiceImpl(alertaSeguridadDAO);
+        fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService = new fis.dsw.sgc.check_in.service.ProgramVisitaService(programacionVisitaDAO);
+        fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas =
+                new fis.dsw.sgc.reservas.service.ServicioReservasImpl(reservaDAO, observacionReservaDAO, inmueblesService, fachaReservas);
+        fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(comunicacionDAO);
+
+        return new Object[] {
+                pagoService, gastoService, deudaService, financieraService, reportesService,
+                checkInService, alertaSeguridadService, programVisitaService, servicioReservas,
+                comunicacionService, usuariosService, cuentasService
+        };
+    }
+
 
     @FXML
     public void initialize() {
@@ -156,18 +279,39 @@ public class mainWindowController {
 
     // ==================== Submenú Finanzas ====================
 
-    @FXML void irAPagarDeuda(ActionEvent event)    { cargarVista("/finanzas/fxml/pagarDeuda.fxml");    }
-    @FXML void irAGenerarRendicionCuentas(ActionEvent event) { cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml"); }
-    @FXML void irAConsultarDeudas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
-    @FXML void irARegistrarDeuda(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarDeuda.fxml");         }
-    @FXML void irAConfiguracionFinanciera(ActionEvent event) { cargarVista("/finanzas/fxml/configuracionFinanciera.fxml"); }
-    @FXML void irARegistrarPagoExterno(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarPagoExterno.fxml");         }
-    @FXML void irAGenerarReporteGastos(ActionEvent event)         { cargarVista("/finanzas/fxml/generarReporteGastos.fxml");         }
-    @FXML void irASolicitarPagoEnCuotas(ActionEvent event)         { cargarVista("/finanzas/fxml/solicitarPagoEnCuotas.fxml");         }
-  
-    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml");         }
-    @FXML void irAGenerarReportePagosInternos(ActionEvent event)     { cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml"); }
-    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event)      { cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml");         }
+    @FXML void irAPagarDeuda(ActionEvent event)    {
+        pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService);
+        cargarVista("/finanzas/fxml/pagarDeuda.fxml",pagarDeudaController);    }
+    @FXML void irAGenerarRendicionCuentas(ActionEvent event) {
+        GenerarRendicionCuentasController generarRendicionCuentasController = new GenerarRendicionCuentasController(reportesService);
+        cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml",generarRendicionCuentasController);    }
+    @FXML void irAConsultarDeudas(ActionEvent event)         {
+        ConsultarDeudasController consultarDeudasController = new ConsultarDeudasController(deudaService);
+        cargarVista("/finanzas/fxml/consultarDeudas.fxml",consultarDeudasController);         }
+    @FXML void irARegistrarDeuda(ActionEvent event)         {
+        RegistrarDeudaController registrarDeudaController = new RegistrarDeudaController(deudaService);
+        cargarVista("/finanzas/fxml/registrarDeuda.fxml",registrarDeudaController);         }
+    @FXML void irAConfiguracionFinanciera(ActionEvent event) {
+        ConfiguracionFinancieraController configuracionFinancieraController = new ConfiguracionFinancieraController(financieraService);
+        cargarVista("/finanzas/fxml/configuracionFinanciera.fxml",configuracionFinancieraController);    }
+    @FXML void irARegistrarPagoExterno(ActionEvent event)         {
+        RegistrarPagoExternoController registrarPagoExternoController = new RegistrarPagoExternoController(gastoService);
+        cargarVista("/finanzas/fxml/registrarPagoExterno.fxml", registrarPagoExternoController);         }
+    @FXML void irAGenerarReporteGastos(ActionEvent event)         {
+        GenerarReporteGastosController reporteGastosController = new GenerarReporteGastosController(reportesService);
+        cargarVista("/finanzas/fxml/generarReporteGastos.fxml", reporteGastosController);         }
+    @FXML void irASolicitarPagoEnCuotas(ActionEvent event)         {
+        SolicitarPagoEnCuotasController solicitarPagoEnCuotasController = new SolicitarPagoEnCuotasController(deudaService);
+        cargarVista("/finanzas/fxml/solicitarPagoEnCuotas.fxml", solicitarPagoEnCuotasController);         }
+    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event)         {
+        ConsultarRendicionCuentasController consultarRendicionCuentasController = new ConsultarRendicionCuentasController(reportesService);
+        cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml",consultarRendicionCuentasController);         }
+    @FXML void irAGenerarReportePagosInternos(ActionEvent event)     {
+        GenerarReportePagosRealizadosController generarReportePagosRealizadosController = new GenerarReportePagosRealizadosController(reportesService);
+        cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml", generarReportePagosRealizadosController);    }
+    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event)      {
+        GenerarCertificadoNoDeudorController certificadoNoDeudorController = new GenerarCertificadoNoDeudorController(reportesService);
+        cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml", certificadoNoDeudorController);         }
 
     // ==================== Submenú Inmuebles ====================
 
@@ -204,9 +348,7 @@ public class mainWindowController {
 
     @FXML
     void irANotificaciones(ActionEvent event) {
-        // Se eliminó la lógica que forzaba el cierre de los menús al ver las notificaciones
-        contentPane.getChildren().clear();
-        contentPane.getChildren().add(crearPlaceholder("No hay notificaciones"));
+        cargarVista("/comunicacion/fxml/misNotificaciones.fxml");
     }
 
     // ==================== Botones de ejemplo (pendientes de definir) ====================
@@ -218,6 +360,21 @@ public class mainWindowController {
     }
 
     // ==================== Utilidades ====================
+
+    private void cargarVista(String rutaFxml, Object controller) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource(rutaFxml));
+            loader.setController(controller);
+            javafx.scene.Parent vista = loader.load();
+
+            contentPane.getChildren().clear();
+            contentPane.getChildren().add(vista);
+        } catch (java.io.IOException | java.lang.NullPointerException e) {
+            e.printStackTrace();
+            contentPane.getChildren().clear();
+            contentPane.getChildren().add(crearPlaceholder("Vista aún no implementada:\n" + rutaFxml));
+        }
+    }
 
     private void cargarVista(String rutaFxml) {
         try {
@@ -231,6 +388,7 @@ public class mainWindowController {
         }
     }
 
+
     private Label crearPlaceholder(String mensaje) {
         Label aviso = new Label(mensaje);
         aviso.getStyleClass().add("placeholder-label");
@@ -239,6 +397,7 @@ public class mainWindowController {
 
     @FXML
     void logOut(ActionEvent event) throws IOException {
+        SesionUsuario.obtenerInstancia().cerrarSesion();
         String vista = "/administracion/fxml/login.fxml";
         Parent root = FXMLLoader.load(getClass().getResource(vista));
         NavigationUtil.changeScene(event, root);

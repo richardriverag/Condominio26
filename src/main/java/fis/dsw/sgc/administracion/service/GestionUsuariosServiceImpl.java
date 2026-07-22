@@ -19,10 +19,14 @@ public class GestionUsuariosServiceImpl implements IGestionUsuariosAPI {
     private ICuentaDAO cuentaDAO;
     private IPermisoDAO permisoDAO;
 
+    public GestionUsuariosServiceImpl(IUsuarioDAO usuarioDAO, ICuentaDAO cuentaDAO, IPermisoDAO permisoDAO) {
+        this.usuarioDAO = usuarioDAO;
+        this.cuentaDAO = cuentaDAO;
+        this.permisoDAO = permisoDAO;
+    }
+
     public GestionUsuariosServiceImpl() {
-        this.usuarioDAO = new UsuarioDAOMySQL();
-        this.cuentaDAO = new CuentaDAOMySQL();
-        this.permisoDAO = new PermisoDAOMySQL();
+        this(new UsuarioDAOMySQL(), new CuentaDAOMySQL(), new PermisoDAOMySQL());
     }
 
     @Override

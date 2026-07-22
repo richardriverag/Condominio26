@@ -18,8 +18,11 @@ import java.util.List;
 
 public class RegistroEntradaDAO implements IRegistroEntradaDAO {
 
-    // Constructor explícito requerido para instanciación manual desde Main (DI manual del jefe de proyecto)
+    // Constructor por defecto: instanciación manual (respaldo si no hay inyección)
     public RegistroEntradaDAO() {}
+
+    // Constructor con DI: recibe la conexión inyectada por el líder del proyecto
+    public RegistroEntradaDAO(Connection conn) {}
 
     @Override
     public int guardar(RegistroEntrada registro) {
@@ -127,7 +130,7 @@ public class RegistroEntradaDAO implements IRegistroEntradaDAO {
             pstmt.setInt(1, ingreso.getIdRegistroEntrada());
             pstmt.setInt(2, ingreso.getIdParqueadero());
             pstmt.setString(3, ingreso.getEstado() != null ? ingreso.getEstado() : "OCUPADO");
-            
+
             // También actualizamos el estado del parqueadero a OCUPADO
             String updateParq = "UPDATE parqueadero SET estado = 'OCUPADO' WHERE id_parqueadero = ?";
             try (PreparedStatement uPstmt = conn.prepareStatement(updateParq)) {
@@ -187,9 +190,9 @@ public class RegistroEntradaDAO implements IRegistroEntradaDAO {
     @Override
     public String obtenerDepartamentoPorCedulaResidente(String cedula) {
         String sql = "SELECT i.codigo, i.numero FROM usuario u " +
-                     "JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
-                     "JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
-                     "WHERE u.numero_documento = ? AND ui.estado = 'ACTIVO' LIMIT 1";
+                "JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
+                "JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
+                "WHERE u.numero_documento = ? AND ui.estado = 'ACTIVO' LIMIT 1";
 
         Connection conn = DBConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -210,9 +213,9 @@ public class RegistroEntradaDAO implements IRegistroEntradaDAO {
     @Override
     public String obtenerDepartamentoYResidentePorId(int idResidente) {
         String sql = "SELECT u.nombres, u.apellidos, i.numero, i.codigo FROM usuario u " +
-                     "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
-                     "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
-                     "WHERE u.id_usuario = ? LIMIT 1";
+                "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
+                "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
+                "WHERE u.id_usuario = ? LIMIT 1";
         Connection conn = DBConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idResidente);
@@ -233,8 +236,8 @@ public class RegistroEntradaDAO implements IRegistroEntradaDAO {
     @Override
     public Integer obtenerIdParqueaderoDeResidente(int idResidente) {
         String sql = "SELECT p.id_parqueadero FROM usuario_inmueble ui " +
-                     "JOIN parqueadero p ON ui.id_inmueble = p.id_inmueble " +
-                     "WHERE ui.id_usuario = ? AND p.estado = 'DISPONIBLE' LIMIT 1";
+                "JOIN parqueadero p ON ui.id_inmueble = p.id_inmueble " +
+                "WHERE ui.id_usuario = ? AND p.estado = 'DISPONIBLE' LIMIT 1";
         Connection conn = DBConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idResidente);
@@ -286,9 +289,9 @@ public class RegistroEntradaDAO implements IRegistroEntradaDAO {
         if (cedula == null || cedula.isBlank()) return null;
 
         String sql = "SELECT u.nombres, u.apellidos, i.numero, i.codigo FROM usuario u " +
-                     "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
-                     "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
-                     "WHERE u.numero_documento = ? AND u.estado = 'ACTIVO' LIMIT 1";
+                "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
+                "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
+                "WHERE u.numero_documento = ? AND u.estado = 'ACTIVO' LIMIT 1";
 
         try (PreparedStatement pstmt = DBConnection.getInstance().getConnection().prepareStatement(sql)) {
             pstmt.setString(1, cedula.trim());

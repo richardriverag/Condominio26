@@ -1,5 +1,6 @@
 package fis.dsw.sgc.administracion.controller;
 
+import fis.dsw.sgc.administracion.dashboard.mainWindowController;
 import fis.dsw.sgc.core.util.NavigationUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,7 +21,23 @@ import java.io.IOException;
 
 public class loginController {
 
-    private final IGestionUsuariosAPI gestionUsuariosService = new GestionUsuariosServiceImpl();
+    // Se elimina el duplicado y se quita el 'final' del arreglo
+    private final IGestionUsuariosAPI gestionUsuariosService;
+    private Object[] dependenciasDashboard;
+
+    public loginController(IGestionUsuariosAPI gestionUsuariosService) {
+        this.gestionUsuariosService = gestionUsuariosService;
+        // Al no ser final, ya no es obligatorio inicializar el arreglo aquí
+    }
+
+    public loginController(IGestionUsuariosAPI gestionUsuariosService, Object[] dependenciasDashboard) {
+        this.gestionUsuariosService = gestionUsuariosService;
+        this.dependenciasDashboard = dependenciasDashboard;
+    }
+
+    public loginController() {
+        this(new GestionUsuariosServiceImpl());
+    }
 
     @FXML
     private TextField txtUsuario;
@@ -83,7 +100,29 @@ public class loginController {
     private void cargarDashboard(ActionEvent event) {
         try {
             String vista = "/administracion/fxml/dashboard.fxml";
-            Parent root = FXMLLoader.load(getClass().getResource(vista));
+
+            // 1. Instanciamos el loader en lugar de usar el método estático
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(vista));
+
+            // 2. Le decimos a JavaFX CÓMO construir el mainWindowController
+            loader.setControllerFactory(clazz -> {
+                if (clazz == mainWindowController.class) {
+                    // ¡Aquí ocurre la inyección! Le pasamos el arreglo preparado.
+                    // Si no llegó (p. ej. login sin pasar por Main.java, como tras
+                    // un logOut), usamos el constructor vacío de respaldo.
+                    return dependenciasDashboard != null
+                            ? new mainWindowController(dependenciasDashboard)
+                            : new mainWindowController();
+                }
+                try {
+                    return clazz.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            // 3. Cargamos la vista usando la instancia
+            Parent root = loader.load();
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
