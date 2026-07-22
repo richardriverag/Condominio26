@@ -14,7 +14,11 @@ import java.util.List;
 
 public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
 
+    // Constructor por defecto: usa la conexión del Singleton (respaldo si no hay inyección)
     public ProgramacionVisitaDAO() {}
+
+    // Constructor con DI: recibe la conexión inyectada por el líder del proyecto
+    public ProgramacionVisitaDAO(Connection conn) {}
 
     private Connection getConn() {
         return DBConnection.getInstance().getConnection();
