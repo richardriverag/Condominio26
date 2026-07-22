@@ -15,7 +15,15 @@ import javafx.scene.layout.VBox;
 
 public class ActualizarInformacionDeCuentaController {
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public ActualizarInformacionDeCuentaController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public ActualizarInformacionDeCuentaController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private TextField txtBuscarCorreo;
     @FXML private Button btnBuscar;

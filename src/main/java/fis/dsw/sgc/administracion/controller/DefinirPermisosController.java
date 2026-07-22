@@ -12,7 +12,15 @@ import javafx.scene.control.TextField;
 
 public class DefinirPermisosController {
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public DefinirPermisosController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public DefinirPermisosController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private ComboBox<NombreRol> cmbRoles;
     @FXML private TextField txtNombrePermiso;

@@ -12,7 +12,15 @@ import javafx.scene.layout.VBox;
 
 public class RecuperarContrasenaController {
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public RecuperarContrasenaController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public RecuperarContrasenaController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     // Panel Paso 1
     @FXML private VBox panelSolicitud;

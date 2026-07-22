@@ -29,12 +29,18 @@ public class GestionCuentasServiceImpl implements IGestionCuentasService {
     private final ITokenRecuperacionDAO tokenDAO;
     private final SecureRandom random = new SecureRandom();
 
+    public GestionCuentasServiceImpl(IUsuarioDAO usuarioDAO, ICuentaDAO cuentaDAO, IRolDAO rolDAO,
+                                     IPermisoDAO permisoDAO, ITokenRecuperacionDAO tokenDAO) {
+        this.usuarioDAO = usuarioDAO;
+        this.cuentaDAO = cuentaDAO;
+        this.rolDAO = rolDAO;
+        this.permisoDAO = permisoDAO;
+        this.tokenDAO = tokenDAO;
+    }
+
     public GestionCuentasServiceImpl() {
-        this.usuarioDAO = new UsuarioDAOMySQL();
-        this.cuentaDAO = new CuentaDAOMySQL();
-        this.rolDAO = new RolDAOMySQL();
-        this.permisoDAO = new PermisoDAOMySQL();
-        this.tokenDAO = new TokenRecuperacionDAOMySQL();
+        this(new UsuarioDAOMySQL(), new CuentaDAOMySQL(), new RolDAOMySQL(),
+                new PermisoDAOMySQL(), new TokenRecuperacionDAOMySQL());
     }
 
     @Override

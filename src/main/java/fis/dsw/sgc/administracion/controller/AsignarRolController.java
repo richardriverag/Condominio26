@@ -15,7 +15,15 @@ import javafx.scene.layout.VBox;
 
 public class AsignarRolController {
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public AsignarRolController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public AsignarRolController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private TextField txtBuscarCorreo;
     @FXML private Label lblMensajeBusqueda;

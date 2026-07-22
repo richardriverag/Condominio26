@@ -5,6 +5,7 @@ import java.util.List;
 import fis.dsw.sgc.inmuebles.dao.CasoFortuitoDAOMySQL;
 import fis.dsw.sgc.inmuebles.dao.ICasoFortuitoDAO;
 import fis.dsw.sgc.inmuebles.dao.IInmuebleDAO;
+import fis.dsw.sgc.inmuebles.dao.InmuebleDAOMySQL;
 import fis.dsw.sgc.inmuebles.dto.CasoFortuitoDTO;
 import fis.dsw.sgc.inmuebles.dto.DimensionesInmuebleDTO;
 import fis.dsw.sgc.inmuebles.dto.EspacioReservableDTO;
@@ -18,6 +19,10 @@ public class InmueblesServiceImpl implements IInmueblesService {
     private final IInmuebleDAO inmuebleDAO;
     private final ICasoFortuitoDAO casoFortuitoDAO;
     private final fis.dsw.sgc.inmuebles.dao.IEspacioReservableDAO espacioReservableDAO;
+
+    public InmueblesServiceImpl() {
+        this(new InmuebleDAOMySQL(), new CasoFortuitoDAOMySQL(), new fis.dsw.sgc.inmuebles.dao.EspacioReservableDAO());
+    }
 
     public InmueblesServiceImpl(IInmuebleDAO inmuebleDAO) {
         this(inmuebleDAO, new CasoFortuitoDAOMySQL(), new fis.dsw.sgc.inmuebles.dao.EspacioReservableDAO());

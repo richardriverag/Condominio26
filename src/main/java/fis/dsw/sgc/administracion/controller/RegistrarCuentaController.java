@@ -18,7 +18,15 @@ public class RegistrarCuentaController {
     private static final String MSG_INICIAL =
             "Complete los datos del nuevo usuario y pulse Registrar cuenta.";
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public RegistrarCuentaController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public RegistrarCuentaController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private TextField txtCedula;
     @FXML private TextField txtNombreUsuario;

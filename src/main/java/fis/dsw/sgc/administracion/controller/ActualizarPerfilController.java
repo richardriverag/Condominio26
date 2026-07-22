@@ -16,7 +16,15 @@ public class ActualizarPerfilController {
     private static final String MSG_INICIAL =
             "Edite los campos que desee actualizar y pulse Guardar cambios.";
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public ActualizarPerfilController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public ActualizarPerfilController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private Label lblUsuarioActual;
     @FXML private TextField txtTelefono;

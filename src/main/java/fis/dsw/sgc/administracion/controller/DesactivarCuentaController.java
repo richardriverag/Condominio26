@@ -14,7 +14,15 @@ import javafx.scene.layout.VBox;
 
 public class DesactivarCuentaController {
 
-    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
+    private final IGestionCuentasService cuentasService;
+
+    public DesactivarCuentaController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public DesactivarCuentaController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private VBox panelPrincipal;
     @FXML private TextField txtBuscarCorreo;
