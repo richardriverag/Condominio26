@@ -1,7 +1,10 @@
 package fis.dsw.sgc.administracion.controller;
 
+import fis.dsw.sgc.administracion.exception.GestionCuentasException;
 import fis.dsw.sgc.administracion.model.EstadoCuenta;
 import fis.dsw.sgc.administracion.model.Usuario;
+import fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl;
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,6 +14,8 @@ import javafx.scene.layout.VBox;
 
 
 public class ActualizarInformacionDeCuentaController {
+
+    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
 
     @FXML private TextField txtBuscarCorreo;
     @FXML private Button btnBuscar;
@@ -38,7 +43,7 @@ public class ActualizarInformacionDeCuentaController {
             return;
         }
 
-        Usuario usuario = DatosDemoGRB.buscarPorCorreo(correo);
+        Usuario usuario = cuentasService.buscarPorCorreo(correo);
 
         if (usuario == null) {
             mostrarErrorBusqueda("No se encontró ninguna cuenta con ese correo.");
@@ -86,13 +91,13 @@ public class ActualizarInformacionDeCuentaController {
             return;
         }
 
-        boolean correoCambio = !correo.equalsIgnoreCase(correoOriginal);
-        if (correoCambio && DatosDemoGRB.buscarPorCorreo(correo) != null) {
-            mostrarErrorEdicion("El correo electrónico ingresado ya está registrado por otro usuario.");
+        try {
+            cuentasService.actualizarInformacionCuenta(usuarioEnEdicion.getIdUsuario(), nombre, apellido, correo);
+        } catch (GestionCuentasException e) {
+            mostrarErrorEdicion(e.getMessage());
             return;
         }
 
-        // Datos de ejemplo hasta conectar con el servicio/DAO real
         usuarioEnEdicion.setNombre(nombre);
         usuarioEnEdicion.setApellido(apellido);
         usuarioEnEdicion.setCorreo(correo);

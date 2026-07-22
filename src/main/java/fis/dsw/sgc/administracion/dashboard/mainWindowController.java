@@ -239,6 +239,7 @@ public class mainWindowController {
 
     @FXML
     void logOut(ActionEvent event) throws IOException {
+        SesionUsuario.obtenerInstancia().cerrarSesion();
         String vista = "/administracion/fxml/login.fxml";
         Parent root = FXMLLoader.load(getClass().getResource(vista));
         NavigationUtil.changeScene(event, root);

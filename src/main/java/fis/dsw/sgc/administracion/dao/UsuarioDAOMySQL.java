@@ -13,34 +13,94 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioDAOMySQL implements IUsuarioDAO {
-    private Connection dbConn;
 
     @Override
-    public void guardar(Usuario usuario) {}
+    public int guardar(Usuario usuario) {
+        String sql = "INSERT INTO usuario (numero_documento, nombres, apellidos, correo, telefono, direccion, foto_perfil, estado) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVO')";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            Perfil perfil = usuario.getPerfil();
+            pstmt.setString(1, usuario.getCedula());
+            pstmt.setString(2, usuario.getNombre());
+            pstmt.setString(3, usuario.getApellido());
+            pstmt.setString(4, usuario.getCorreo());
+            pstmt.setString(5, perfil != null ? perfil.getTelefono() : null);
+            pstmt.setString(6, perfil != null ? perfil.getDireccion() : null);
+            pstmt.setString(7, perfil != null ? perfil.getFotoPerfil() : null);
+            pstmt.executeUpdate();
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al guardar usuario: " + e.getMessage());
+        }
+        return -1;
+    }
 
     @Override
-    public void actualizar(Usuario usuario) {}
+    public void actualizarInformacion(int idUsuario, String nombres, String apellidos, String correo) {
+        String sql = "UPDATE usuario SET nombres = ?, apellidos = ?, correo = ?, "
+                + "fecha_actualizacion = CURRENT_TIMESTAMP WHERE id_usuario = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nombres);
+            pstmt.setString(2, apellidos);
+            pstmt.setString(3, correo);
+            pstmt.setInt(4, idUsuario);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar información de usuario: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void actualizarPerfil(int idUsuario, String telefono, String direccion, String fotoPerfil) {
+        String sql = "UPDATE usuario SET telefono = ?, direccion = ?, foto_perfil = ?, "
+                + "fecha_actualizacion = CURRENT_TIMESTAMP WHERE id_usuario = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, telefono);
+            pstmt.setString(2, direccion);
+            pstmt.setString(3, fotoPerfil);
+            pstmt.setInt(4, idUsuario);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar perfil: " + e.getMessage());
+        }
+    }
 
     @Override
     public Usuario buscarPorId(int idUsuario) {
-        return null;
+        String sql = "SELECT u.nombres, u.apellidos, u.correo, u.telefono, u.direccion, u.foto_perfil, "
+                + "u.id_usuario, u.numero_documento, c.id_cuenta, c.estado AS estado_cuenta "
+                + "FROM usuario u JOIN cuenta c ON c.id_usuario = u.id_usuario WHERE u.id_usuario = ?";
+        return buscarUno(sql, ps -> ps.setInt(1, idUsuario));
     }
 
     @Override
     public Usuario buscarPorCorreo(String correo) {
-        String sql = "SELECT u.nombres, u.apellidos, u.correo, u.telefono, u.id_usuario, u.numero_documento, "
-                + "c.id_cuenta, c.estado AS estado_cuenta "
-                + "FROM usuario u "
-                + "JOIN cuenta c ON c.id_usuario = u.id_usuario "
-                + "WHERE u.correo = ?";
+        String sql = "SELECT u.nombres, u.apellidos, u.correo, u.telefono, u.direccion, u.foto_perfil, "
+                + "u.id_usuario, u.numero_documento, c.id_cuenta, c.estado AS estado_cuenta "
+                + "FROM usuario u JOIN cuenta c ON c.id_usuario = u.id_usuario WHERE u.correo = ?";
+        return buscarUno(sql, ps -> ps.setString(1, correo));
+    }
 
+    private interface Parametrizador {
+        void aplicar(PreparedStatement ps) throws SQLException;
+    }
+
+    private Usuario buscarUno(String sql, Parametrizador parametrizador) {
         Connection conn = DBConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, correo);
+            parametrizador.aplicar(pstmt);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (!rs.next()) {
                     return null;
@@ -59,17 +119,16 @@ public class UsuarioDAOMySQL implements IUsuarioDAO {
                 cuenta.setRoles(cargarRolesPorUsuario(conn, rs.getInt("id_usuario")));
                 usuario.setCuenta(cuenta);
 
-                String telefono = rs.getString("telefono");
-                if (telefono != null) {
-                    Perfil perfil = new Perfil();
-                    perfil.setTelefono(telefono);
-                    usuario.setPerfil(perfil);
-                }
+                Perfil perfil = new Perfil();
+                perfil.setTelefono(rs.getString("telefono"));
+                perfil.setDireccion(rs.getString("direccion"));
+                perfil.setFotoPerfil(rs.getString("foto_perfil"));
+                usuario.setPerfil(perfil);
 
                 return usuario;
             }
         } catch (SQLException e) {
-            System.err.println("Error al buscar usuario por correo: " + e.getMessage());
+            System.err.println("Error al buscar usuario: " + e.getMessage());
             return null;
         }
     }
@@ -94,7 +153,44 @@ public class UsuarioDAOMySQL implements IUsuarioDAO {
 
     @Override
     public List<Usuario> listarTodos() {
-        return null;
+        List<Usuario> usuarios = new ArrayList<>();
+        String sql = "SELECT id_usuario, correo FROM usuario ORDER BY nombres, apellidos";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setIdUsuario(rs.getInt("id_usuario"));
+                u.setCorreo(rs.getString("correo"));
+                usuarios.add(u);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar usuarios: " + e.getMessage());
+        }
+        return usuarios;
+    }
+
+    @Override
+    public boolean existeCorreo(String correo) {
+        return existe("SELECT 1 FROM usuario WHERE correo = ? LIMIT 1", correo);
+    }
+
+    @Override
+    public boolean existeCedula(String cedula) {
+        return existe("SELECT 1 FROM usuario WHERE numero_documento = ? LIMIT 1", cedula);
+    }
+
+    private boolean existe(String sql, String valor) {
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, valor);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar existencia: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override

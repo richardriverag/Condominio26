@@ -54,4 +54,33 @@ public class PermisoDAOMySQL implements IPermisoDAO {
         }
         return permisos;
     }
+
+    @Override
+    public void crearPermiso(String nombre, String recurso, String accion, String descripcion) {
+        String sql = "INSERT OR IGNORE INTO permiso (nombre, recurso, accion, descripcion) VALUES (?, ?, ?, ?)";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nombre);
+            pstmt.setString(2, recurso);
+            pstmt.setString(3, accion);
+            pstmt.setString(4, descripcion);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al crear permiso: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void asignarPermisoARol(int idRol, String nombrePermiso) {
+        String sql = "INSERT OR IGNORE INTO rol_permiso (id_rol, id_permiso) "
+                + "SELECT ?, id_permiso FROM permiso WHERE nombre = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idRol);
+            pstmt.setString(2, nombrePermiso);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al asignar permiso a rol: " + e.getMessage());
+        }
+    }
 }

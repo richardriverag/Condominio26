@@ -1,8 +1,11 @@
 package fis.dsw.sgc.administracion.controller;
 
+import fis.dsw.sgc.administracion.exception.GestionCuentasException;
 import fis.dsw.sgc.administracion.model.NombreRol;
 import fis.dsw.sgc.administracion.model.Rol;
 import fis.dsw.sgc.administracion.model.Usuario;
+import fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl;
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -11,6 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class AsignarRolController {
+
+    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
 
     @FXML private TextField txtBuscarCorreo;
     @FXML private Label lblMensajeBusqueda;
@@ -39,7 +44,7 @@ public class AsignarRolController {
             return;
         }
 
-        usuarioSeleccionado = DatosDemoGRB.buscarPorCorreo(correo);
+        usuarioSeleccionado = cuentasService.buscarPorCorreo(correo);
 
         if (usuarioSeleccionado == null) {
             mostrarMensaje(lblMensajeBusqueda, "Usuario no encontrado.", "message-error");
@@ -73,10 +78,15 @@ public class AsignarRolController {
             return;
         }
 
-        // Simular la asignación del rol
+        try {
+            cuentasService.asignarRol(usuarioSeleccionado.getIdUsuario(), rolSeleccionado);
+        } catch (GestionCuentasException e) {
+            mostrarMensaje(lblMensajeAsignacion, e.getMessage(), "message-error");
+            return;
+        }
+
         Rol nuevoRol = new Rol();
         nuevoRol.setNombre(rolSeleccionado);
-        nuevoRol.setDescripcion("Rol asignado desde interfaz");
         usuarioSeleccionado.getCuenta().getRoles().add(nuevoRol);
 
         actualizarEtiquetaRoles();

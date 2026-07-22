@@ -15,16 +15,80 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CuentaDAOMySQL implements ICuentaDAO {
-    private Connection dbConn;
 
     @Override
-    public void guardar(Cuenta cuenta) {}
+    public void crearCuenta(int idUsuario, String nombreUsuario, String hashContrasena) {
+        String sql = "INSERT INTO cuenta (id_usuario, nombre_usuario, hash_contrasena, estado) "
+                + "VALUES (?, ?, ?, 'ACTIVA')";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idUsuario);
+            pstmt.setString(2, nombreUsuario);
+            pstmt.setString(3, hashContrasena);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al crear cuenta: " + e.getMessage());
+        }
+    }
 
     @Override
-    public void actualizar(Cuenta cuenta) {}
+    public void actualizarEstado(int idCuenta, EstadoCuenta estado) {
+        String sql = "UPDATE cuenta SET estado = ?, fecha_modificacion = CURRENT_TIMESTAMP WHERE id_cuenta = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, estado.name());
+            pstmt.setInt(2, idCuenta);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar estado de cuenta: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void actualizarContrasena(int idCuenta, String hashContrasena) {
+        String sql = "UPDATE cuenta SET hash_contrasena = ?, fecha_modificacion = CURRENT_TIMESTAMP WHERE id_cuenta = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, hashContrasena);
+            pstmt.setInt(2, idCuenta);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar contraseña: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean existeNombreUsuario(String nombreUsuario) {
+        String sql = "SELECT 1 FROM cuenta WHERE nombre_usuario = ? LIMIT 1";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nombreUsuario);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar nombre de usuario: " + e.getMessage());
+            return false;
+        }
+    }
 
     @Override
     public Cuenta buscarPorIdUsuario(int idUsuario) {
+        String sql = "SELECT id_cuenta, estado FROM cuenta WHERE id_usuario = ?";
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idUsuario);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Cuenta cuenta = new Cuenta();
+                    cuenta.setIdCuenta(rs.getInt("id_cuenta"));
+                    cuenta.setEstado(EstadoCuenta.valueOf(rs.getString("estado")));
+                    return cuenta;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar cuenta por id de usuario: " + e.getMessage());
+        }
         return null;
     }
 

@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS usuario (
     apellidos               TEXT NOT NULL,
     correo                  TEXT NOT NULL UNIQUE,
     telefono                TEXT,
+    direccion               TEXT,
+    foto_perfil             TEXT,
     estado                  TEXT NOT NULL DEFAULT 'ACTIVO'
                             CHECK (estado IN ('ACTIVO', 'INACTIVO', 'BLOQUEADO')),
     fecha_registro          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
