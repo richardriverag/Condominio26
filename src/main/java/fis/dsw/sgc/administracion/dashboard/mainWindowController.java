@@ -353,9 +353,7 @@ public class mainWindowController {
 
     @FXML
     void irANotificaciones(ActionEvent event) {
-        // Se eliminó la lógica que forzaba el cierre de los menús al ver las notificaciones
-        contentPane.getChildren().clear();
-        contentPane.getChildren().add(crearPlaceholder("No hay notificaciones"));
+        cargarVista("/comunicacion/fxml/misNotificaciones.fxml");
     }
 
     // ==================== Botones de ejemplo (pendientes de definir) ====================
