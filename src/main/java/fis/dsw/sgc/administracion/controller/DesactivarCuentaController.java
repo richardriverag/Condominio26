@@ -1,7 +1,10 @@
 package fis.dsw.sgc.administracion.controller;
 
+import fis.dsw.sgc.administracion.exception.GestionCuentasException;
 import fis.dsw.sgc.administracion.model.EstadoCuenta;
 import fis.dsw.sgc.administracion.model.Usuario;
+import fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl;
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -10,6 +13,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class DesactivarCuentaController {
+
+    private final IGestionCuentasService cuentasService;
+
+    public DesactivarCuentaController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public DesactivarCuentaController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private VBox panelPrincipal;
     @FXML private TextField txtBuscarCorreo;
@@ -38,7 +51,7 @@ public class DesactivarCuentaController {
             return;
         }
 
-        Usuario usuario = DatosDemoGRB.buscarPorCorreo(correo);
+        Usuario usuario = cuentasService.buscarPorCorreo(correo);
 
         if (usuario == null) {
             mostrarError("No se encontró ninguna cuenta con ese correo.");
@@ -107,19 +120,25 @@ public class DesactivarCuentaController {
     @FXML
     void confirmarCambioEstado(ActionEvent event) {
         if (usuarioSeleccionado != null) {
-            EstadoCuenta estado = usuarioSeleccionado.getCuenta().getEstado();
+            EstadoCuenta estadoActual = usuarioSeleccionado.getCuenta().getEstado();
+            EstadoCuenta nuevoEstado = estadoActual == EstadoCuenta.ACTIVA
+                    ? EstadoCuenta.DESACTIVADA : EstadoCuenta.ACTIVA;
 
-            // Ejecutar la acción inversa al estado actual
-            if (estado == EstadoCuenta.ACTIVA) {
-                usuarioSeleccionado.getCuenta().desactivar();
-                mostrarExito("Cuenta desactivada exitosamente.");
-            } else {
-                usuarioSeleccionado.getCuenta().activar();
-                mostrarExito("Cuenta reactivada exitosamente.");
+            try {
+                cuentasService.cambiarEstadoCuenta(usuarioSeleccionado.getCuenta().getIdCuenta(), nuevoEstado);
+            } catch (GestionCuentasException e) {
+                mostrarError(e.getMessage());
+                panelConfirmacion.setVisible(false);
+                panelConfirmacion.setManaged(false);
+                panelPrincipal.setVisible(true);
+                panelPrincipal.setManaged(true);
+                return;
             }
 
-            // Actualizar la interfaz (insignia y botón) con el nuevo estado
-            EstadoCuenta nuevoEstado = usuarioSeleccionado.getCuenta().getEstado();
+            usuarioSeleccionado.getCuenta().setEstado(nuevoEstado);
+            mostrarExito(nuevoEstado == EstadoCuenta.DESACTIVADA
+                    ? "Cuenta desactivada exitosamente." : "Cuenta reactivada exitosamente.");
+
             actualizarBadgeEstado(nuevoEstado);
 
             if (nuevoEstado == EstadoCuenta.DESACTIVADA) {

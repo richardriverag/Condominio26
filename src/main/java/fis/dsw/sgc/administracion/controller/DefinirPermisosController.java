@@ -1,7 +1,9 @@
 package fis.dsw.sgc.administracion.controller;
 
+import fis.dsw.sgc.administracion.exception.GestionCuentasException;
 import fis.dsw.sgc.administracion.model.NombreRol;
-import fis.dsw.sgc.administracion.model.Permiso;
+import fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl;
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -9,6 +11,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class DefinirPermisosController {
+
+    private final IGestionCuentasService cuentasService;
+
+    public DefinirPermisosController(IGestionCuentasService cuentasService) {
+        this.cuentasService = cuentasService;
+    }
+
+    public DefinirPermisosController() {
+        this(new GestionCuentasServiceImpl());
+    }
 
     @FXML private ComboBox<NombreRol> cmbRoles;
     @FXML private TextField txtNombrePermiso;
@@ -32,9 +44,13 @@ public class DefinirPermisosController {
             return;
         }
 
-        Permiso nuevoPermiso = new Permiso();
-        nuevoPermiso.setNombre(nombrePermiso);
-        nuevoPermiso.setRecurso(recurso);
+        try {
+            cuentasService.definirPermiso(rol, nombrePermiso, recurso);
+        } catch (GestionCuentasException e) {
+            lblMensaje.getStyleClass().setAll("message-label", "message-error");
+            lblMensaje.setText(e.getMessage());
+            return;
+        }
 
         lblMensaje.getStyleClass().setAll("message-label", "message-success");
         lblMensaje.setText("Permisos del rol " + rol.name() + " actualizados exitosamente.");
