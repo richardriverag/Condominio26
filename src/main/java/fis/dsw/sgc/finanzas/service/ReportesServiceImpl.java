@@ -63,7 +63,11 @@ public class ReportesServiceImpl implements IReportesService {
         if(fechaInicio.isAfter(fechaFin) || fechaInicio.isAfter(LocalDate.now()) || fechaFin.isAfter(LocalDate.now())){
             throw new FechasInvalidasException("Las fechas no cumplen un formato válido");
         }
-        ResidenteFachadaDTO residente = gestionUsuariosAPI.obtenerResidentePorCedula(cedula);
+        try{
+            ResidenteFachadaDTO residente = gestionUsuariosAPI.obtenerResidentePorCedula(cedula);
+        }catch (ResidenteNoExisteException e){
+            throw new RuntimeException(e.getMessage());
+        }
 
         List<DetallePagoDTO> pagosBD = reportesDAO.buscarPagosPorRangoFechasYUsuario(fechaInicio, fechaFin, residente.getIdUsuario());
 
