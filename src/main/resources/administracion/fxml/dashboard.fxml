@@ -129,13 +129,13 @@
                                     <Button mnemonicParsing="false" onAction="#irAVerInmuebles"
                                             styleClass="submenu-item" text="Ver Inmuebles"/>
 
-                                    <Button mnemonicParsing="false" onAction="#irARegistrarInmueble"
+                                    <Button fx:id="btnRegistrarInmueble" mnemonicParsing="false" onAction="#irARegistrarInmueble"
                                             styleClass="submenu-item" text="Registrar Inmueble"/>
 
-                                    <Button mnemonicParsing="false" onAction="#irAEditarInmueble"
+                                    <Button fx:id="btnEditarInmueble" mnemonicParsing="false" onAction="#irAEditarInmueble"
                                             styleClass="submenu-item" text="Editar Inmueble"/>
 
-                                    <Button mnemonicParsing="false" onAction="#irARegistrarCasoFortuito"
+                                    <Button fx:id="btnRegistrarCasoFortuito" mnemonicParsing="false" onAction="#irARegistrarCasoFortuito"
                                             styleClass="submenu-item" text="Registrar Caso Fortuito"/>
                                 </children>
                             </VBox>
