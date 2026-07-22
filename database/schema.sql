@@ -409,6 +409,23 @@ CREATE TABLE IF NOT EXISTS gasto (
     FOREIGN KEY (id_usuario_registra) REFERENCES usuario(id_usuario) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
+CREATE TABLE IF NOT EXISTS reporte_rendicion (
+    id_reporte              INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_inicio            TEXT NOT NULL,
+    fecha_fin               TEXT NOT NULL,
+    total_servicios_centavos INTEGER NOT NULL DEFAULT 0 CHECK (total_servicios_centavos >= 0),
+    total_sueldos_centavos  INTEGER NOT NULL DEFAULT 0 CHECK (total_sueldos_centavos >= 0),
+    total_otros_centavos    INTEGER NOT NULL DEFAULT 0 CHECK (total_otros_centavos >= 0),
+    total_gastos_centavos   INTEGER NOT NULL DEFAULT 0 CHECK (total_gastos_centavos >= 0),
+    total_multas_centavos   INTEGER NOT NULL DEFAULT 0 CHECK (total_multas_centavos >= 0),
+    total_alicuotas_centavos INTEGER NOT NULL DEFAULT 0 CHECK (total_alicuotas_centavos >= 0),
+    total_reservas_centavos INTEGER NOT NULL DEFAULT 0 CHECK (total_reservas_centavos >= 0),
+    total_ingresos_centavos INTEGER NOT NULL DEFAULT 0 CHECK (total_ingresos_centavos >= 0),
+    balance_neto_centavos   INTEGER NOT NULL,
+    observaciones           TEXT,
+    fecha_generacion        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ============================================================
 -- GRE - VISITAS, CHECK-IN Y SEGURIDAD
 -- ============================================================
