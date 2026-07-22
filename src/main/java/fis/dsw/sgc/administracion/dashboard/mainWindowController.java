@@ -51,6 +51,10 @@ public class mainWindowController {
     @FXML private Button btnAuditarReservas;
     @FXML private Button btnCheckIn;
     @FXML private Button btnComunicacion;
+    
+    @FXML private Button btnRegistrarInmueble;
+    @FXML private Button btnEditarInmueble;
+    @FXML private Button btnRegistrarCasoFortuito;
 
     private static final String AVATAR_PATH  = "/administracion/img/avatar.jpg";
     private static final String HOME_BG_PATH = "/administracion/img/home_bg.jpg";
@@ -202,6 +206,16 @@ public class mainWindowController {
             boolean esAdmin = roles.contains("ADMINISTRADOR");
             btnAuditarReservas.setVisible(esAdmin);
             btnAuditarReservas.setManaged(esAdmin);
+        }
+
+        if (btnRegistrarInmueble != null && btnEditarInmueble != null && btnRegistrarCasoFortuito != null) {
+            boolean esAdmin = roles.contains("ADMINISTRADOR");
+            btnRegistrarInmueble.setVisible(esAdmin);
+            btnRegistrarInmueble.setManaged(esAdmin);
+            btnEditarInmueble.setVisible(esAdmin);
+            btnEditarInmueble.setManaged(esAdmin);
+            btnRegistrarCasoFortuito.setVisible(esAdmin);
+            btnRegistrarCasoFortuito.setManaged(esAdmin);
         }
 
         if (reservasBox != null) {
