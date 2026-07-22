@@ -8,6 +8,11 @@ import fis.dsw.sgc.administracion.service.IGestionCuentasService;
 import fis.dsw.sgc.check_in.service.IAlertaSeguridadService;
 import fis.dsw.sgc.check_in.service.ICheckInService;
 import fis.dsw.sgc.check_in.service.IProgramVisitaService;
+import fis.dsw.sgc.comunicacion.controller.ConsultarHistorialController;
+import fis.dsw.sgc.comunicacion.controller.EnviarMensajeController;
+import fis.dsw.sgc.comunicacion.controller.GenerarReporteComunicacionController;
+import fis.dsw.sgc.comunicacion.controller.GestionarNotificacionesController;
+import fis.dsw.sgc.comunicacion.controller.PublicarAnuncioController;
 import fis.dsw.sgc.comunicacion.service.IComunicacionService;
 import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.model.Usuario;
@@ -51,7 +56,7 @@ public class mainWindowController {
     @FXML private Button btnAuditarReservas;
     @FXML private Button btnCheckIn;
     @FXML private Button btnComunicacion;
-    
+
     @FXML private Button btnRegistrarInmueble;
     @FXML private Button btnEditarInmueble;
     @FXML private Button btnRegistrarCasoFortuito;
@@ -220,9 +225,9 @@ public class mainWindowController {
 
         if (reservasBox != null) {
             boolean tieneAccesoReservas = roles.contains("ADMINISTRADOR") ||
-                                          roles.contains("RESIDENTE") ||
-                                          roles.contains("PROPIETARIO") ||
-                                          roles.contains("PRESIDENTE");
+                    roles.contains("RESIDENTE") ||
+                    roles.contains("PROPIETARIO") ||
+                    roles.contains("PRESIDENTE");
             reservasBox.setVisible(tieneAccesoReservas);
             reservasBox.setManaged(tieneAccesoReservas);
         }
@@ -414,15 +419,63 @@ public class mainWindowController {
         }
     }
 
+    /**
+     * Inyecta el servicio compartido de Comunicación en los controladores
+     * creados por FXMLLoader.
+     */
+    private void inyectarServicioComunicacion(Object controller) {
+        if (controller instanceof EnviarMensajeController) {
+            ((EnviarMensajeController) controller)
+                    .setComunicacionService(comunicacionService);
+            return;
+        }
+
+        if (controller instanceof PublicarAnuncioController) {
+            ((PublicarAnuncioController) controller)
+                    .setComunicacionService(comunicacionService);
+            return;
+        }
+
+        if (controller instanceof ConsultarHistorialController) {
+            ((ConsultarHistorialController) controller)
+                    .setComunicacionService(comunicacionService);
+            return;
+        }
+
+        if (controller instanceof GestionarNotificacionesController) {
+            ((GestionarNotificacionesController) controller)
+                    .setComunicacionService(comunicacionService);
+            return;
+        }
+
+        if (controller instanceof GenerarReporteComunicacionController) {
+            ((GenerarReporteComunicacionController) controller)
+                    .setComunicacionService(comunicacionService);
+        }
+    }
+
     private void cargarVista(String rutaFxml) {
         try {
-            Parent vista = FXMLLoader.load(getClass().getResource(rutaFxml));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(rutaFxml)
+            );
+
+            Parent vista = loader.load();
+
+            Object controller = loader.getController();
+            inyectarServicioComunicacion(controller);
+
             contentPane.getChildren().clear();
             contentPane.getChildren().add(vista);
+
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
             contentPane.getChildren().clear();
-            contentPane.getChildren().add(crearPlaceholder("Vista aún no implementada:\n" + rutaFxml));
+            contentPane.getChildren().add(
+                    crearPlaceholder(
+                            "Vista aún no implementada:\n" + rutaFxml
+                    )
+            );
         }
     }
 
