@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import fis.dsw.sgc.core.session.SesionUsuario;
 import fis.dsw.sgc.administracion.model.Usuario;
 import fis.dsw.sgc.core.util.NavigationUtil;
-import fis.dsw.sgc.finanzas.controller.pagarDeudaController;
+import fis.dsw.sgc.finanzas.controller.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -51,23 +51,32 @@ public class mainWindowController {
 
     private final fis.dsw.sgc.finanzas.service.IPagoService pagoService;
     private final fis.dsw.sgc.finanzas.service.IGastoService gastoService;
+    private final fis.dsw.sgc.finanzas.service.IDeudaService deudaService;
+    private final fis.dsw.sgc.finanzas.service.IConfiguracionFinancieraService financieraService;
     private final fis.dsw.sgc.finanzas.service.IReportesService reportesService;
     private final fis.dsw.sgc.check_in.service.ICheckInService checkInService;
     private final fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService;
     private final fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService;
     private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas;
     private final fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService;
-    private final fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService;
+    private final fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService;
+    private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservasService;
+
+
 
     public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService, fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService) {
         this.pagoService = pagoService;
         this.gastoService = gastoService;
+        this.deudaService = deudaService;
+        this.financieraService = financieraService;
         this.reportesService = reportesService;
         this.checkInService = checkInService;
         this.alertaSeguridadService = alertaSeguridadService;
         this.programVisitaService = programVisitaService;
         this.servicioReservas = servicioReservas;
         this.comunicacionService = comunicacionService;
+        this.usuariosService = usuariosService;
+        this.servicioReservasService = servicioReservasService;
         this.cuentasService = cuentasService;
     }
 
