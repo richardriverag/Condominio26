@@ -9,4 +9,6 @@ public interface IReportesService {
     ReportePagosDTO consultarPagosEfectuados(LocalDate fechaInicio, LocalDate fechaFin, String numeroCedulaIdentidadResidente);
     ReporteRendicionDTO generarReporteRendicionCuentas(LocalDate fechaInicio, LocalDate fechaFin, String observaciones);
     ReporteRendicionDTO consultarReporteRendicionCuentas(LocalDate fechaInicio, LocalDate fechaFin);
+
+    CertificadoNoDeudorDTO generarCertificadoDeNoDeudor(String cedula, LocalDate fechaInicio, LocalDate fechaFin);
 }

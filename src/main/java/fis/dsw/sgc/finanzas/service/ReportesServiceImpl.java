@@ -134,4 +134,9 @@ public class ReportesServiceImpl implements IReportesService {
         System.out.println("Reporte Consultado exitosamente");
         return reporteBD;
     }
+
+    @Override
+    public CertificadoNoDeudorDTO generarCertificadoDeNoDeudor(String cedula, LocalDate fechaInicio, LocalDate fechaFin) {
+        return null;
+    }
 }
