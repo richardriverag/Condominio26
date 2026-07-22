@@ -14,7 +14,11 @@ import java.util.List;
 
 public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
 
+    // Constructor por defecto: usa la conexión del Singleton (respaldo si no hay inyección)
     public ProgramacionVisitaDAO() {}
+
+    // Constructor con DI: recibe la conexión inyectada por el líder del proyecto
+    public ProgramacionVisitaDAO(Connection conn) {}
 
     private Connection getConn() {
         return DBConnection.getInstance().getConnection();
@@ -23,9 +27,9 @@ public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
     @Override
     public boolean programarVisita(VisitaProgramada visita) {
         String sql = "INSERT INTO visitas_programadas (" +
-                     "id_residente, nombres_visita, apellidos_visita, cedula_visita, " +
-                     "tipo_visita, fecha_programada, hora_programada, placa_vehiculo, estado, motivo_visita) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "id_residente, nombres_visita, apellidos_visita, cedula_visita, " +
+                "tipo_visita, fecha_programada, hora_programada, placa_vehiculo, estado, motivo_visita) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         Connection conn = getConn();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -120,13 +124,13 @@ public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
     @Override
     public List<Usuario_Checkin> obtenerResidentes() {
         String sql = "SELECT u.id_usuario, u.numero_documento, u.nombres, u.apellidos, u.correo, u.telefono, u.estado, " +
-                     "u.fecha_registro, u.fecha_actualizacion, " +
-                     "(COALESCE(e.nombre, 'Torre A') || ' - ' || COALESCE(i.codigo, i.numero, '101')) AS lugar_residencia " +
-                     "FROM usuario u " +
-                     "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
-                     "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
-                     "LEFT JOIN edificio e ON i.id_edificio = e.id_edificio " +
-                     "WHERE u.estado = 'ACTIVO'";
+                "u.fecha_registro, u.fecha_actualizacion, " +
+                "(COALESCE(e.nombre, 'Torre A') || ' - ' || COALESCE(i.codigo, i.numero, '101')) AS lugar_residencia " +
+                "FROM usuario u " +
+                "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
+                "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
+                "LEFT JOIN edificio e ON i.id_edificio = e.id_edificio " +
+                "WHERE u.estado = 'ACTIVO'";
         List<Usuario_Checkin> residentes = new ArrayList<>();
         Connection conn = getConn();
 
@@ -195,18 +199,18 @@ public class ProgramacionVisitaDAO implements IProgramacionVisitaDAO {
     @Override
     public String obtenerInfoResidentePorId(int idResidente) {
         String sql = "SELECT u.nombres, u.apellidos, " +
-                     "COALESCE(i.codigo, i.numero, 'Sin unidad') AS unidad " +
-                     "FROM usuario u " +
-                     "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
-                     "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
-                     "WHERE u.id_usuario = ? LIMIT 1";
+                "COALESCE(i.codigo, i.numero, 'Sin unidad') AS unidad " +
+                "FROM usuario u " +
+                "LEFT JOIN usuario_inmueble ui ON u.id_usuario = ui.id_usuario " +
+                "LEFT JOIN inmueble i ON ui.id_inmueble = i.id_inmueble " +
+                "WHERE u.id_usuario = ? LIMIT 1";
         Connection conn = getConn();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, idResidente);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getString("nombres") + " " + rs.getString("apellidos")
-                           + " (Depto. " + rs.getString("unidad") + ")";
+                            + " (Depto. " + rs.getString("unidad") + ")";
                 }
             }
         } catch (SQLException e) {
