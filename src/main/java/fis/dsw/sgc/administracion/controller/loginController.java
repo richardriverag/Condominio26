@@ -20,7 +20,15 @@ import java.io.IOException;
 
 public class loginController {
 
-    private final IGestionUsuariosAPI gestionUsuariosService = new GestionUsuariosServiceImpl();
+    private final IGestionUsuariosAPI gestionUsuariosService;
+
+    public loginController(IGestionUsuariosAPI gestionUsuariosService) {
+        this.gestionUsuariosService = gestionUsuariosService;
+    }
+
+    public loginController() {
+        this(new GestionUsuariosServiceImpl());
+    }
 
     @FXML
     private TextField txtUsuario;

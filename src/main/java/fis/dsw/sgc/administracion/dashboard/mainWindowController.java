@@ -57,8 +57,9 @@ public class mainWindowController {
     private final fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService;
     private final fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas;
     private final fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService;
+    private final fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService;
 
-    public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService) {
+    public mainWindowController(fis.dsw.sgc.finanzas.service.IPagoService pagoService, fis.dsw.sgc.finanzas.service.IGastoService gastoService, fis.dsw.sgc.finanzas.service.IReportesService reportesService, fis.dsw.sgc.check_in.service.ICheckInService checkInService, fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService, fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService, fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas, fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService, fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService) {
         this.pagoService = pagoService;
         this.gastoService = gastoService;
         this.reportesService = reportesService;
@@ -67,6 +68,86 @@ public class mainWindowController {
         this.programVisitaService = programVisitaService;
         this.servicioReservas = servicioReservas;
         this.comunicacionService = comunicacionService;
+        this.cuentasService = cuentasService;
+    }
+
+    // Constructor sin argumentos: red de seguridad si la inyección manual de
+    // Main.java no llega a tiempo. Arma exactamente la misma cadena de DAOs
+    // y services que ya está escrita en Main.java, para que el dashboard
+    // nunca quede sin poder cargarse.
+    public mainWindowController() {
+        this(construirConDependenciasPorDefecto());
+    }
+
+    private mainWindowController(Object[] dependenciasPorDefecto) {
+        this(
+                (fis.dsw.sgc.finanzas.service.IPagoService) dependenciasPorDefecto[0],
+                (fis.dsw.sgc.finanzas.service.IGastoService) dependenciasPorDefecto[1],
+                (fis.dsw.sgc.finanzas.service.IReportesService) dependenciasPorDefecto[2],
+                (fis.dsw.sgc.check_in.service.ICheckInService) dependenciasPorDefecto[3],
+                (fis.dsw.sgc.check_in.service.IAlertaSeguridadService) dependenciasPorDefecto[4],
+                (fis.dsw.sgc.check_in.service.IProgramVisitaService) dependenciasPorDefecto[5],
+                (fis.dsw.sgc.reservas.service.IServicioReservas) dependenciasPorDefecto[6],
+                (fis.dsw.sgc.comunicacion.service.IComunicacionService) dependenciasPorDefecto[7],
+                (fis.dsw.sgc.administracion.service.IGestionCuentasService) dependenciasPorDefecto[8]
+        );
+    }
+
+    private static Object[] construirConDependenciasPorDefecto() {
+        fis.dsw.sgc.finanzas.service.IDeudaFactory deudaFactory = new fis.dsw.sgc.finanzas.service.DeudaFactoryImpl();
+        fis.dsw.sgc.finanzas.service.GastoFactoryImpl gastoFactory = new fis.dsw.sgc.finanzas.service.GastoFactoryImpl();
+        fis.dsw.sgc.finanzas.service.IPagoFactory pagoFactory = new fis.dsw.sgc.finanzas.service.PagoFactoryImpl();
+
+        fis.dsw.sgc.finanzas.dao.IDeudaDAO deudaDAO = new fis.dsw.sgc.finanzas.dao.DeudaDAOImpl();
+        fis.dsw.sgc.finanzas.dao.IPagoDAO pagoDAO = new fis.dsw.sgc.finanzas.dao.PagoDAOImpl();
+        fis.dsw.sgc.finanzas.dao.IGastoDAO gastoDAO = new fis.dsw.sgc.finanzas.dao.GastoDAOImpl();
+        fis.dsw.sgc.finanzas.dao.IReportesDAO reportesDAO = new fis.dsw.sgc.finanzas.dao.ReportesDAOImpl();
+
+        fis.dsw.sgc.inmuebles.dao.IInmuebleDAO inmuebleDAO = new fis.dsw.sgc.inmuebles.dao.InmuebleDAOMySQL();
+        fis.dsw.sgc.inmuebles.dao.IEspacioReservableDAO espacioReservableDAO = new fis.dsw.sgc.inmuebles.dao.EspacioReservableDAO();
+        fis.dsw.sgc.inmuebles.dao.ICasoFortuitoDAO casoFortuitoDAO = new fis.dsw.sgc.inmuebles.dao.CasoFortuitoDAOMySQL();
+
+        fis.dsw.sgc.check_in.dao.IAlertaSeguridadDAO alertaSeguridadDAO = new fis.dsw.sgc.check_in.dao.AlertaSeguridadDAO();
+        fis.dsw.sgc.check_in.dao.IProgramacionVisitaDAO programacionVisitaDAO = new fis.dsw.sgc.check_in.dao.ProgramacionVisitaDAO();
+        fis.dsw.sgc.check_in.dao.IRegistroEntradaDAO registroEntradaDAO = new fis.dsw.sgc.check_in.dao.RegistroEntradaDAO();
+
+        fis.dsw.sgc.reservas.dao.IReservaDAO reservaDAO = new fis.dsw.sgc.reservas.dao.ReservaDAOSQLite();
+        fis.dsw.sgc.reservas.dao.IObservacionReservaDAO observacionReservaDAO = new fis.dsw.sgc.reservas.dao.ObservacionReservaDAOSQLite();
+
+        fis.dsw.sgc.administracion.dao.ICuentaDAO cuentaDAO = new fis.dsw.sgc.administracion.dao.CuentaDAOMySQL();
+        fis.dsw.sgc.administracion.dao.IPermisoDAO permisoDAO = new fis.dsw.sgc.administracion.dao.PermisoDAOMySQL();
+        fis.dsw.sgc.administracion.dao.IRolDAO rolDAO = new fis.dsw.sgc.administracion.dao.RolDAOMySQL();
+        fis.dsw.sgc.administracion.dao.IUsuarioDAO usuarioDAO = new fis.dsw.sgc.administracion.dao.UsuarioDAOMySQL();
+        fis.dsw.sgc.administracion.dao.ITokenRecuperacionDAO tokenDAO = new fis.dsw.sgc.administracion.dao.TokenRecuperacionDAOMySQL();
+
+        fis.dsw.sgc.comunicacion.dao.IComunicacionDAO comunicacionDAO = new fis.dsw.sgc.comunicacion.dao.ComunicacionDAOSQLite();
+
+        fis.dsw.sgc.administracion.service.IGestionUsuariosAPI usuariosService =
+                new fis.dsw.sgc.administracion.service.GestionUsuariosServiceImpl(usuarioDAO, cuentaDAO, permisoDAO);
+        fis.dsw.sgc.administracion.service.IGestionCuentasService cuentasService =
+                new fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl(usuarioDAO, cuentaDAO, rolDAO, permisoDAO, tokenDAO);
+        fis.dsw.sgc.inmuebles.service.IInmueblesService inmueblesService =
+                new fis.dsw.sgc.inmuebles.service.InmueblesServiceImpl(inmuebleDAO, casoFortuitoDAO, espacioReservableDAO);
+        fis.dsw.sgc.finanzas.service.IDeudaService deudaService =
+                new fis.dsw.sgc.finanzas.service.DeudaServiceImpl(deudaFactory, deudaDAO, inmueblesService, usuariosService);
+        fis.dsw.sgc.finanzas.service.IFachadaParaReservas fachaReservas =
+                new fis.dsw.sgc.finanzas.service.FachadaParaReservasImpl(deudaService);
+
+        fis.dsw.sgc.finanzas.service.IPagoService pagoService = new fis.dsw.sgc.finanzas.service.PagoServiceImpl(pagoFactory, pagoDAO, deudaDAO);
+        fis.dsw.sgc.finanzas.service.IGastoService gastoService = new fis.dsw.sgc.finanzas.service.GastoServiceImpl(gastoDAO);
+        fis.dsw.sgc.finanzas.service.IReportesService reportesService = new fis.dsw.sgc.finanzas.service.ReportesServiceImpl(reportesDAO, usuariosService);
+        fis.dsw.sgc.check_in.service.ICheckInService checkInService = new fis.dsw.sgc.check_in.service.CheckInServiceImpl(registroEntradaDAO, programacionVisitaDAO);
+        fis.dsw.sgc.check_in.service.IAlertaSeguridadService alertaSeguridadService = new fis.dsw.sgc.check_in.service.AlertaSeguridadServiceImpl(alertaSeguridadDAO);
+        fis.dsw.sgc.check_in.service.IProgramVisitaService programVisitaService = new fis.dsw.sgc.check_in.service.ProgramVisitaService(programacionVisitaDAO);
+        fis.dsw.sgc.reservas.service.IServicioReservas servicioReservas =
+                new fis.dsw.sgc.reservas.service.ServicioReservasImpl(reservaDAO, observacionReservaDAO, inmueblesService, fachaReservas);
+        fis.dsw.sgc.comunicacion.service.IComunicacionService comunicacionService = new fis.dsw.sgc.comunicacion.service.ComunicacionServiceImpl(comunicacionDAO);
+
+        return new Object[] {
+                pagoService, gastoService, reportesService, checkInService,
+                alertaSeguridadService, programVisitaService, servicioReservas,
+                comunicacionService, cuentasService
+        };
     }
 
     @FXML
@@ -180,17 +261,35 @@ public class mainWindowController {
     @FXML void irAPagarDeuda(ActionEvent event)    {
         pagarDeudaController pagarDeudaController = new pagarDeudaController(pagoService);
         cargarVista("/finanzas/fxml/pagarDeuda.fxml",pagarDeudaController);    }
-    @FXML void irAGenerarRendicionCuentas(ActionEvent event) { cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml"); }
+    @FXML void irAGenerarRendicionCuentas(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarRendicionCuentas.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarRendicionCuentasController(reportesService));
+    }
     @FXML void irAConsultarDeudas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarDeudas.fxml");         }
     @FXML void irARegistrarDeuda(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarDeuda.fxml");         }
     @FXML void irAConfiguracionFinanciera(ActionEvent event) { cargarVista("/finanzas/fxml/configuracionFinanciera.fxml"); }
-    @FXML void irARegistrarPagoExterno(ActionEvent event)         { cargarVista("/finanzas/fxml/registrarPagoExterno.fxml");         }
-    @FXML void irAGenerarReporteGastos(ActionEvent event)         { cargarVista("/finanzas/fxml/generarReporteGastos.fxml");         }
+    @FXML void irARegistrarPagoExterno(ActionEvent event) {
+        cargarVista("/finanzas/fxml/registrarPagoExterno.fxml",
+                new fis.dsw.sgc.finanzas.controller.RegistrarPagoExternoController(gastoService));
+    }
+    @FXML void irAGenerarReporteGastos(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarReporteGastos.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarReporteGastosController(reportesService));
+    }
     @FXML void irASolicitarPagoEnCuotas(ActionEvent event)         { cargarVista("/finanzas/fxml/solicitarPagoEnCuotas.fxml");         }
   
-    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event)         { cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml");         }
-    @FXML void irAGenerarReportePagosInternos(ActionEvent event)     { cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml"); }
-    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event)      { cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml");         }
+    @FXML void irAConsultarReporteRendicionCuentas(ActionEvent event) {
+        cargarVista("/finanzas/fxml/consultarRendicionCuentas.fxml",
+                new fis.dsw.sgc.finanzas.controller.ConsultarRendicionCuentasController(reportesService));
+    }
+    @FXML void irAGenerarReportePagosInternos(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarReportePagosRealizados.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarReportePagosRealizadosController(reportesService));
+    }
+    @FXML void irAGenerarCertificadoNoDeudor(ActionEvent event) {
+        cargarVista("/finanzas/fxml/generarCertificadoNoDeudor.fxml",
+                new fis.dsw.sgc.finanzas.controller.GenerarCertificadoNoDeudorController(reportesService));
+    }
 
     // ==================== Submenú Inmuebles ====================
 
@@ -278,6 +377,7 @@ public class mainWindowController {
 
     @FXML
     void logOut(ActionEvent event) throws IOException {
+        SesionUsuario.obtenerInstancia().cerrarSesion();
         String vista = "/administracion/fxml/login.fxml";
         Parent root = FXMLLoader.load(getClass().getResource(vista));
         NavigationUtil.changeScene(event, root);
@@ -287,37 +387,44 @@ public class mainWindowController {
 
     @FXML
     void irARegistrarCuenta(ActionEvent event) {
-        cargarVista("/administracion/fxml/registrarCuenta.fxml");
+        cargarVista("/administracion/fxml/registrarCuenta.fxml",
+                new fis.dsw.sgc.administracion.controller.RegistrarCuentaController(cuentasService));
     }
 
     @FXML
     void irAActualizarPerfil(ActionEvent event) {
-        cargarVista("/administracion/fxml/actualizarPerfil.fxml");
+        cargarVista("/administracion/fxml/actualizarPerfil.fxml",
+                new fis.dsw.sgc.administracion.controller.ActualizarPerfilController(cuentasService));
     }
 
     @FXML
     void irAActualizarInformacionCuenta(ActionEvent event) {
-        cargarVista("/administracion/fxml/actualizarInformacionDeCuenta.fxml");
+        cargarVista("/administracion/fxml/actualizarInformacionDeCuenta.fxml",
+                new fis.dsw.sgc.administracion.controller.ActualizarInformacionDeCuentaController(cuentasService));
     }
 
     @FXML
     void irADesactivarCuenta(ActionEvent event) {
-        cargarVista("/administracion/fxml/desactivarCuenta.fxml");
+        cargarVista("/administracion/fxml/desactivarCuenta.fxml",
+                new fis.dsw.sgc.administracion.controller.DesactivarCuentaController(cuentasService));
     }
 
     @FXML
     void irAAsignarRol(ActionEvent event) {
-        cargarVista("/administracion/fxml/asignarRol.fxml");
+        cargarVista("/administracion/fxml/asignarRol.fxml",
+                new fis.dsw.sgc.administracion.controller.AsignarRolController(cuentasService));
     }
 
     @FXML
     void irADefinirPermisos(ActionEvent event) {
-        cargarVista("/administracion/fxml/definirPermisos.fxml");
+        cargarVista("/administracion/fxml/definirPermisos.fxml",
+                new fis.dsw.sgc.administracion.controller.DefinirPermisosController(cuentasService));
     }
 
     @FXML
     void irARecuperarContrasena(ActionEvent event) {
-        cargarVista("/administracion/fxml/recuperarContrasena.fxml");
+        cargarVista("/administracion/fxml/recuperarContrasena.fxml",
+                new fis.dsw.sgc.administracion.controller.RecuperarContrasenaController(cuentasService));
     }
 
 }
