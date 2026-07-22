@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class GenerarCertificadoNoDeudorController {
-
     // 5. Inyección de dependencias
     private final IReportesService reportesService;
 
