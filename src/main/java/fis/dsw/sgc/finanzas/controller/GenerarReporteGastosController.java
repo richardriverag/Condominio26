@@ -1,17 +1,16 @@
 package fis.dsw.sgc.finanzas.controller;
 
+import fis.dsw.sgc.finanzas.dto.ReporteGastosDTO;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class GenerarReporteGastosController implements Initializable {
@@ -111,7 +110,40 @@ public class GenerarReporteGastosController implements Initializable {
 
     @FXML
     void consultarGastos(ActionEvent event) {
+        LocalDate fechaInicio = dpFechaInicio.getValue();
+        LocalDate fechaFin = dpFechaFin.getValue();
 
+        // 1. Validaciones a nivel de interfaz
+        if (fechaInicio == null || fechaFin == null) {
+            mostrarAlerta("Campos requeridos", "Debe seleccionar las fechas de inicio y fin para generar el reporte.");
+            return;
+        }
+        if (fechaInicio.isAfter(fechaFin)) {
+            mostrarAlerta("Fechas inválidas", "La fecha de inicio no puede ser posterior a la fecha de fin.");
+            return;
+        }
+
+        try {
+            // 2. Orquestación: Se envía el DTO/Datos al Service
+            ReporteGastosDTO reporte = reporteService.generarReporteGastos(fechaInicio, fechaFin);
+
+            // 3. Recepción y muestra de datos en la Vista
+            ObservableList<GastoDTO> gastosObs = FXCollections.observableArrayList(reporte.getGastos());
+            tbReporteGastos.setItems(gastosObs);
+
+            txtTotalAgua.setText(formatearValor(reporte.getTotalAgua()));
+            txtTotalLuz.setText(formatearValor(reporte.getTotalLuz()));
+            txtTotalTelefono.setText(formatearValor(reporte.getTotalTelefono()));
+            txtTotalInternet.setText(formatearValor(reporte.getTotalInternet()));
+            txtTotalSueldos.setText(formatearValor(reporte.getTotalSueldos()));
+            txtTotalOtros.setText(formatearValor(reporte.getTotalOtros()));
+            txtTotalServiciosBasicos.setText(formatearValor(reporte.getTotalServiciosBasicos()));
+            txtTotalGastos.setText(formatearValor(reporte.getTotalGastosGenerales()));
+
+        } catch (Exception e) {
+            // Captura errores de negocio (ej. "La fecha no puede ser mayor a la actual")
+            mostrarAlerta("Error de consulta", e.getMessage());
+        }
     }
 
     @FXML
@@ -121,9 +153,29 @@ public class GenerarReporteGastosController implements Initializable {
 
     @FXML
     void limpiarReporte(ActionEvent event) {
-
+        dpFechaInicio.setValue(null);
+        dpFechaFin.setValue(null);
+        tbReporteGastos.getItems().clear();
+        txtTotalAgua.clear();
+        txtTotalLuz.clear();
+        txtTotalTelefono.clear();
+        txtTotalInternet.clear();
+        txtTotalSueldos.clear();
+        txtTotalOtros.clear();
+        txtTotalServiciosBasicos.clear();
+        txtTotalGastos.clear();
+    }
+    private String formatearValor(double valor) {
+        return String.format(Locale.US, "%.2f", valor);
     }
 
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         FontIcon icon = new FontIcon("fa-external-link");
