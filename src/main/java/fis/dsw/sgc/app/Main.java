@@ -79,7 +79,8 @@ public class Main extends Application {
                 servicioReservas,       // 8
                 comunicacionService,    // 9
                 usuariosService,        // 10
-                cuentasService          // 11
+                cuentasService,         // 11
+                inmueblesService        // 12
         };
 
         // 2. Instanciamos el loader para la vista de Login
