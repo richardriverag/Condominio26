@@ -1,6 +1,9 @@
 package fis.dsw.sgc.administracion.controller;
 
+import fis.dsw.sgc.administracion.exception.GestionCuentasException;
 import fis.dsw.sgc.administracion.model.Usuario;
+import fis.dsw.sgc.administracion.service.GestionCuentasServiceImpl;
+import fis.dsw.sgc.administracion.service.IGestionCuentasService;
 import fis.dsw.sgc.core.session.SesionUsuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,6 +15,8 @@ public class ActualizarPerfilController {
 
     private static final String MSG_INICIAL =
             "Edite los campos que desee actualizar y pulse Guardar cambios.";
+
+    private final IGestionCuentasService cuentasService = new GestionCuentasServiceImpl();
 
     @FXML private Label lblUsuarioActual;
     @FXML private TextField txtTelefono;
@@ -31,11 +36,11 @@ public class ActualizarPerfilController {
         Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
 
         if (usuario == null) {
-            // Datos de ejemplo hasta conectar con el servicio, para poder previsualizar la vista
-            lblUsuarioActual.setText("demo@condominio.com");
-            txtTelefono.setText("0999999999");
-            txtDireccion.setText("Av. de ejemplo y calle secundaria");
+            lblUsuarioActual.setText("Sin sesión activa");
+            txtTelefono.setText("");
+            txtDireccion.setText("");
             txtFotoPerfil.setText("");
+            btnGuardar.setDisable(true);
             return;
         }
 
@@ -51,8 +56,15 @@ public class ActualizarPerfilController {
 
     @FXML
     void guardar(ActionEvent event) {
+        Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
+        if (usuario == null) {
+            setMensaje("No hay una sesión activa.", "message-error");
+            return;
+        }
+
         String telefono = valorSeguro(txtTelefono);
         String direccion = valorSeguro(txtDireccion);
+        String fotoPerfil = valorSeguro(txtFotoPerfil);
 
         if (!telefono.isEmpty() && !telefono.matches("\\d{7,10}")) {
             setMensaje("El teléfono debe tener entre 7 y 10 dígitos.", "message-error");
@@ -64,7 +76,13 @@ public class ActualizarPerfilController {
             return;
         }
 
-        // Datos de ejemplo hasta conectar con el servicio/DAO real
+        try {
+            cuentasService.actualizarPerfil(usuario.getIdUsuario(), telefono, direccion, fotoPerfil);
+        } catch (GestionCuentasException e) {
+            setMensaje(e.getMessage(), "message-error");
+            return;
+        }
+
         setMensaje("Perfil actualizado correctamente.", "message-success");
     }
 
