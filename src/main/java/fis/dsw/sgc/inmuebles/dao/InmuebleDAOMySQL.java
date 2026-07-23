@@ -105,14 +105,14 @@ public class InmuebleDAOMySQL implements IInmuebleDAO {
 
         Connection conn = DBConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            pstmt.setObject(1, inmueble.getIdEdificio());
+            if (inmueble.getIdEdificio() != null) pstmt.setInt(1, inmueble.getIdEdificio()); else pstmt.setNull(1, java.sql.Types.INTEGER);
             pstmt.setInt(2, inmueble.getIdTipoInmueble());
             pstmt.setString(3, inmueble.getCodigo());
-            pstmt.setObject(4, inmueble.getPiso());
+            if (inmueble.getPiso() != null) pstmt.setInt(4, inmueble.getPiso()); else pstmt.setNull(4, java.sql.Types.INTEGER);
             pstmt.setString(5, inmueble.getNumero());
-            pstmt.setObject(6, inmueble.getAreaM2());
-            pstmt.setObject(7, inmueble.getNumeroHabitaciones());
-            pstmt.setObject(8, inmueble.getNumeroBanos());
+            if (inmueble.getAreaM2() != null) pstmt.setDouble(6, inmueble.getAreaM2()); else pstmt.setNull(6, java.sql.Types.DOUBLE);
+            if (inmueble.getNumeroHabitaciones() != null) pstmt.setInt(7, inmueble.getNumeroHabitaciones()); else pstmt.setNull(7, java.sql.Types.INTEGER);
+            if (inmueble.getNumeroBanos() != null) pstmt.setInt(8, inmueble.getNumeroBanos()); else pstmt.setNull(8, java.sql.Types.INTEGER);
             pstmt.setString(9, inmueble.getDescripcion());
             pstmt.setInt(10, inmueble.isDisponibleAlquiler() ? 1 : 0);
             pstmt.setInt(11, inmueble.isDisponibleVenta() ? 1 : 0);
@@ -126,6 +126,7 @@ public class InmuebleDAOMySQL implements IInmuebleDAO {
             }
         } catch (SQLException e) {
             System.err.println("Error al guardar inmueble: " + e.getMessage());
+            e.printStackTrace();
         }
         return -1;
     }
@@ -138,14 +139,14 @@ public class InmuebleDAOMySQL implements IInmuebleDAO {
 
         Connection conn = DBConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, inmueble.getIdEdificio());
+            if (inmueble.getIdEdificio() != null) pstmt.setInt(1, inmueble.getIdEdificio()); else pstmt.setNull(1, java.sql.Types.INTEGER);
             pstmt.setInt(2, inmueble.getIdTipoInmueble());
             pstmt.setString(3, inmueble.getCodigo());
-            pstmt.setObject(4, inmueble.getPiso());
+            if (inmueble.getPiso() != null) pstmt.setInt(4, inmueble.getPiso()); else pstmt.setNull(4, java.sql.Types.INTEGER);
             pstmt.setString(5, inmueble.getNumero());
-            pstmt.setObject(6, inmueble.getAreaM2());
-            pstmt.setObject(7, inmueble.getNumeroHabitaciones());
-            pstmt.setObject(8, inmueble.getNumeroBanos());
+            if (inmueble.getAreaM2() != null) pstmt.setDouble(6, inmueble.getAreaM2()); else pstmt.setNull(6, java.sql.Types.DOUBLE);
+            if (inmueble.getNumeroHabitaciones() != null) pstmt.setInt(7, inmueble.getNumeroHabitaciones()); else pstmt.setNull(7, java.sql.Types.INTEGER);
+            if (inmueble.getNumeroBanos() != null) pstmt.setInt(8, inmueble.getNumeroBanos()); else pstmt.setNull(8, java.sql.Types.INTEGER);
             pstmt.setString(9, inmueble.getDescripcion());
             pstmt.setInt(10, inmueble.isDisponibleAlquiler() ? 1 : 0);
             pstmt.setInt(11, inmueble.isDisponibleVenta() ? 1 : 0);
@@ -154,6 +155,7 @@ public class InmuebleDAOMySQL implements IInmuebleDAO {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error al actualizar inmueble: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -286,7 +288,9 @@ public class InmuebleDAOMySQL implements IInmuebleDAO {
         }
 
         String sqlInsertar = "INSERT INTO usuario_inmueble (id_usuario, id_inmueble, tipo_relacion, " +
-                "es_principal, estado) VALUES (?, ?, 'PROPIETARIO', 1, 'ACTIVO')";
+                "es_principal, estado, fecha_inicio) VALUES (?, ?, 'PROPIETARIO', 1, 'ACTIVO', CURRENT_DATE) " +
+                "ON CONFLICT(id_usuario, id_inmueble, tipo_relacion, fecha_inicio) " +
+                "DO UPDATE SET estado = 'ACTIVO', fecha_fin = NULL, es_principal = 1";
         try (PreparedStatement pstmt = conn.prepareStatement(sqlInsertar)) {
             pstmt.setInt(1, idUsuario);
             pstmt.setInt(2, idInmueble);

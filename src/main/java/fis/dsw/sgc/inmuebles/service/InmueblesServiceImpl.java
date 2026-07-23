@@ -114,7 +114,10 @@ public class InmueblesServiceImpl implements IInmueblesService {
         if (idUsuario == null) {
             inmuebleDAO.quitarPropietario(idInmueble);
         } else {
-            inmuebleDAO.asignarPropietario(idInmueble, idUsuario);
+            Integer propietarioActual = inmuebleDAO.obtenerIdPropietario(idInmueble);
+            if (!idUsuario.equals(propietarioActual)) {
+                inmuebleDAO.asignarPropietario(idInmueble, idUsuario);
+            }
         }
     }
 
